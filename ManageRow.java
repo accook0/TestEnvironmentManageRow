@@ -32,7 +32,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.control.TableView; 
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
-import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -45,12 +44,8 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Labeled;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ContentDisplay;
-import javafx.scene.paint.Color;
 import javafx.scene.control.cell.ComboBoxTableCell;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.canvas.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import java.util.ArrayList;
@@ -66,6 +61,10 @@ import javafx.scene.SnapshotParameters;
 import javax.imageio.ImageIO;
 import javafx.scene.transform.Transform;
 import java.io.FileWriter;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.List;
+
 
 
 public class ManageRow extends Application{
@@ -92,6 +91,7 @@ public class ManageRow extends Application{
     private ComboBox boatSizes = new ComboBox(FXCollections.observableArrayList(BOATS));
     private ComboBox rowerPosition = new ComboBox();
     private ComboBox rigOptions = new ComboBox(FXCollections.observableArrayList(RIGS));
+    private ComboBox boatsDropDown = new ComboBox();
     
     private TableView<Rower> table;
 
@@ -117,6 +117,7 @@ public class ManageRow extends Application{
 
         lineupsTab.setText("Lineups");
         lineupsTab.setClosable(false);
+        setLineupsTab(lineupsTab);
 
 
         rosterTab.setText("Roster");
@@ -142,6 +143,21 @@ public class ManageRow extends Application{
         stage.show(); 
 
 
+    }
+
+    public void setLineupsTab(Tab lineups){
+        BorderPane lineupsPane = new BorderPane();
+        boatsDropDown.setPrefWidth(100);
+        fleet = readBoatCsv("boats.csv");
+        //System.out.println(fleet.toString());
+        for(Boat b : fleet){ //read the csv herre
+            boatsDropDown.getItems().add(b.getName());
+        }
+
+        HBox info = new HBox(100);
+        info.getChildren().addAll(boatsDropDown);
+        lineupsPane.getChildren().addAll(info);
+        lineups.setContent(lineupsPane);
     }
 
     public void setBoatTab(Tab boats){
@@ -172,8 +188,10 @@ public class ManageRow extends Application{
 
         page.setPadding(new Insets(10));
         page.setTop(boatInfo);
+        popThumbnails();
+
         allThumbnails.setContent(boatThumbnails);
-        page.setLeft(allThumbnails);
+        page.setRight(allThumbnails);
         boats.setContent(page);
     }
 
@@ -204,6 +222,16 @@ public class ManageRow extends Application{
 
     }
 
+    public void popThumbnails(){
+        for(int i = 0; i < 4; i ++){
+            for(int j = 0; j < 8; j ++){
+                Button b = new Button("Boat Here");
+                b.setPadding(new Insets(10));
+                boatThumbnails.add(b, i, j);
+            }
+        }
+    }
+
     //********************** Handlers **********************/
     public void addBoat(Canvas c){
         //check rig to draw boat
@@ -223,16 +251,19 @@ public class ManageRow extends Application{
         GraphicsContext gc = boatImg.getGraphicsContext2D();
         gc.clearRect(0, 0, boatImg.getWidth(), boatImg.getHeight());
         b.drawBoat(gc);
+        saveImg(c, boatName);
+
+        //popThumbnails(boatName);
+
 
         //reset the page
         boatSizeField.setText("");
         boatNameField.setText("");
 
-        saveImg(c, boatName);
            
     }
 
-    //********************** CSV Writers **********************/
+    //********************** CSV Tools **********************/
     public void csvWriterRower(ArrayList<Rower> data) {
         //ArrayList<String> data = new ArrayList<String>();
         
@@ -264,6 +295,8 @@ public class ManageRow extends Application{
         }
     }
 
+
+
         public void csvWriterBoat(ArrayList<Boat> data) {
             //ArrayList<String> data = new ArrayList<String>();
             
@@ -291,5 +324,24 @@ public class ManageRow extends Application{
                     e.printStackTrace();
                 }
             }
+        }
+
+        public static ArrayList<Boat> readBoatCsv(String filePath) {
+            ArrayList<Boat> dataList = new ArrayList<Boat>();
+            try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    System.out.println(line);
+                    String[] values = line.split("\\|");
+                    //System.out.println(values[0]);
+                    Boat data = new Boat(Integer.valueOf(values[1]), values[0], Integer.valueOf(values[2])); // assuming the CSV has three columns
+                    //name, size, rig
+                    //System.out.println(data);
+                    dataList.add(data);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return dataList;
         }
     }
