@@ -107,7 +107,18 @@ public class Boat
         }
     }
 
+    public static Boat getBoat(String boatName, ArrayList<Boat> fleet){
+        for (Boat b: fleet){
+            if(b.getName().equals(boatName)){
+                return b;
+            }
+        }
+        return null;
+    }
+
+
     public void drawBoat(GraphicsContext gc){
+        gc.clearRect(0, 0, 400, 400);
         gc.setStroke(Color.BLACK);
         int coordx = 0;
         int coordy = 0;

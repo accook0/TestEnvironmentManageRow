@@ -81,6 +81,8 @@ public class ManageRow extends Application{
     private TextField rowerSideField =  new TextField();
     
     private Canvas boatImg = new Canvas();
+    private Canvas lineupsCanvas = new Canvas();
+
 
     private BorderPane root = new BorderPane();
     private FlowPane boatInfo = new FlowPane();
@@ -92,6 +94,8 @@ public class ManageRow extends Application{
     private ComboBox rowerPosition = new ComboBox();
     private ComboBox rigOptions = new ComboBox(FXCollections.observableArrayList(RIGS));
     private ComboBox boatsDropDown = new ComboBox();
+    private ComboBox ports = new ComboBox();
+    private ComboBox starboards = new ComboBox();
     
     private TableView<Rower> table;
 
@@ -146,17 +150,34 @@ public class ManageRow extends Application{
     }
 
     public void setLineupsTab(Tab lineups){
-        BorderPane lineupsPane = new BorderPane();
         boatsDropDown.setPrefWidth(100);
-        fleet = readBoatCsv("boats.csv");
+        fleet = readBoatCsv("boats.csv"); //returns the csv
         //System.out.println(fleet.toString());
-        for(Boat b : fleet){ //read the csv herre
+        for(Boat b : fleet){ //read the csv here, create combo box
             boatsDropDown.getItems().add(b.getName());
         }
 
-        HBox info = new HBox(100);
-        info.getChildren().addAll(boatsDropDown);
-        lineupsPane.getChildren().addAll(info);
+        VBox selectBoat = new VBox(20);
+        selectBoat.getChildren().addAll(boatsDropDown);
+
+        //make all canvas things
+        BorderPane lineupsPane = new BorderPane();
+        Pane wrapperPane = new Pane();
+        lineupsPane.setCenter(wrapperPane);
+
+        //bind the canvas
+        wrapperPane.getChildren().addAll(lineupsCanvas);
+        lineupsCanvas.widthProperty().bind(wrapperPane.widthProperty());
+        lineupsCanvas.heightProperty().bind(wrapperPane.heightProperty());
+
+        lineupsPane.setPadding(new Insets(10));
+        lineupsPane.setTop(selectBoat);
+
+        
+
+        //HBox info = new HBox(100);
+        //info.getChildren().addAll(boatsDropDown);
+        //lineupsPane.getChildren().addAll(info);
         lineups.setContent(lineupsPane);
     }
 
@@ -197,6 +218,8 @@ public class ManageRow extends Application{
 
     private void setHandlers(Canvas c){
         newBoatButton.setOnAction(e-> addBoat(c));
+        boatsDropDown.setOnAction(e -> selectBoat()); //make this
+        
     }
 
     //********************** Helpers **********************/
@@ -246,7 +269,7 @@ public class ManageRow extends Application{
         Boat b = new Boat(Integer.valueOf(String.valueOf((boatSizes.getValue()))), boatNameField.getText(), rigin);
         fleet.add(b);
         csvWriterBoat(fleet); //ideally this would only do new ones but we dont have a save button
-        
+        boatsDropDown.getItems().add(b.getName());
         //draw the boat
         GraphicsContext gc = boatImg.getGraphicsContext2D();
         gc.clearRect(0, 0, boatImg.getWidth(), boatImg.getHeight());
@@ -260,7 +283,11 @@ public class ManageRow extends Application{
         boatSizeField.setText("");
         boatNameField.setText("");
 
-           
+    }
+    public void selectBoat(){ //only draws boats that have been pre drawn
+       String boatName = String.valueOf(boatsDropDown.getValue());
+       GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
+       Boat.getBoat(boatName, fleet).drawBoat(gc);
     }
 
     //********************** CSV Tools **********************/
@@ -295,36 +322,54 @@ public class ManageRow extends Application{
         }
     }
 
-
-
-        public void csvWriterBoat(ArrayList<Boat> data) {
-            //ArrayList<String> data = new ArrayList<String>();
-            
-            String csvFilePath = "boats.csv";
-            FileWriter csvWriter = null;
-            
-            try {
-                csvWriter = new FileWriter(csvFilePath);
-                for (Boat line : data) {
-                    csvWriter.append(line.getName());
-                    csvWriter.append("|");
-                    csvWriter.append(String.valueOf(line.getSize()));
-                    csvWriter.append("|");
-                    csvWriter.append(String.valueOf(line.getRig()));
-                    csvWriter.append("\n");
-    
+    public ArrayList<Rower> csvWriterRower(String filePath) {
+        ArrayList<Rower> dataList = new ArrayList<Rower>();
+            try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    System.out.println(line);
+                    String[] values = line.split("\\|");
+                    //System.out.println(values[0]);
+                    Rower data = new Rower(values[0], values[1], values[2], Double.valueOf(values[3])); // assuming the CSV has three columns
+                    //name, size, rig
+                    //System.out.println(data);
+                    dataList.add(data);
                 }
-                csvWriter.flush();
             } catch (IOException e) {
                 e.printStackTrace();
-            } finally {
-                try {
-                    csvWriter.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            }
+            return dataList;
+    }
+
+
+    public void csvWriterBoat(ArrayList<Boat> data) {
+        //ArrayList<String> data = new ArrayList<String>();
+        
+        String csvFilePath = "boats.csv";
+        FileWriter csvWriter = null;
+        
+        try {
+            csvWriter = new FileWriter(csvFilePath);
+            for (Boat line : data) {
+                csvWriter.append(line.getName());
+                csvWriter.append("|");
+                csvWriter.append(String.valueOf(line.getSize()));
+                csvWriter.append("|");
+                csvWriter.append(String.valueOf(line.getRig()));
+                csvWriter.append("\n");
+
+            }
+            csvWriter.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                csvWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
+    }
 
         public static ArrayList<Boat> readBoatCsv(String filePath) {
             ArrayList<Boat> dataList = new ArrayList<Boat>();
