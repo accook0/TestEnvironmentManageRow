@@ -148,7 +148,7 @@ public class ManageRow extends Application{
         stage.setWidth(WIDTH);
         stage.setHeight(HEIGHT);
 
-        //scene.getStylesheets().add("cssFile.css");
+        scene.getStylesheets().add("style.css");
         stage.show(); 
 
 
@@ -177,7 +177,11 @@ public class ManageRow extends Application{
 
         lineupsPane.setPadding(new Insets(10));
         lineupsPane.setTop(selectBoat);
-        lineupsPane.setBottom(lineupsTable);
+        Boat b = new Boat(5, "Conte", 1);
+        HBox test = lineupsTable(b);
+        HBox another = new HBox(10);
+        another.getChildren().addAll(ports, starboards, coxs);
+        lineupsPane.setBottom(another);
 
 
 
