@@ -173,7 +173,9 @@ public class ManageRow extends Application{
         lineupsPane.setPadding(new Insets(10));
         lineupsPane.setTop(selectBoat);
 
-        
+        HBox lineupTable = lineupsTable();
+
+
 
         //HBox info = new HBox(100);
         //info.getChildren().addAll(boatsDropDown);
@@ -255,6 +257,33 @@ public class ManageRow extends Application{
         }
     }
 
+    public void lineupsTable(Boat b){
+
+        for(int i = 0; i < b.getLineup().length; i++){
+            VBox seat = new VBox(0);
+            VBox rower = new VBox(0);
+            VBox combo = new VBox(10);
+            combo.setPrefWidth(100);
+            combo.setPrefHeight(100);
+            Label seatLabel;
+            if(i == 0){
+                seatLabel = new Label("Bow");
+            }
+            else if(i == b.getLineup().length-2){
+                seatLabel = new Label("Stroke");
+            }
+            else if(i == b.getLineup().length-1){
+                seatLabel = new Label("Coxswain");
+            }
+            else{
+                seatLabel = new Label("" + (i + 1));
+            }
+        }
+        
+
+            
+    }
+
     //********************** Handlers **********************/
     public void addBoat(Canvas c){
         //check rig to draw boat
@@ -287,7 +316,9 @@ public class ManageRow extends Application{
     public void selectBoat(){ //only draws boats that have been pre drawn
        String boatName = String.valueOf(boatsDropDown.getValue());
        GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
-       Boat.getBoat(boatName, fleet).drawBoat(gc);
+       Boat b =  Boat.getBoat(boatName, fleet);
+       b.drawBoat(gc);
+       lineupsTable(b);
     }
 
     //********************** CSV Tools **********************/
