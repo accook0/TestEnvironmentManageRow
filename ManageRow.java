@@ -89,6 +89,7 @@ public class ManageRow extends Application{
     private GridPane boatThumbnails = new GridPane();
     private ScrollPane allThumbnails = new ScrollPane();
 
+    private HBox lineupsTable = new HBox(100);
 
     private ComboBox boatSizes = new ComboBox(FXCollections.observableArrayList(BOATS));
     private ComboBox rowerPosition = new ComboBox();
@@ -96,6 +97,7 @@ public class ManageRow extends Application{
     private ComboBox boatsDropDown = new ComboBox();
     private ComboBox ports = new ComboBox();
     private ComboBox starboards = new ComboBox();
+    private ComboBox coxs = new ComboBox();
     
     private TableView<Rower> table;
 
@@ -110,6 +112,9 @@ public class ManageRow extends Application{
     private Tab learnMore = new Tab();
 
     public void start(Stage stage){
+        //create elements for tabs
+        createRowerCombos("roster.csv");
+        
         //create tabs
         TabPane tabPane = new TabPane();
         boatsTab.setText("Boats");
@@ -172,8 +177,7 @@ public class ManageRow extends Application{
 
         lineupsPane.setPadding(new Insets(10));
         lineupsPane.setTop(selectBoat);
-
-        HBox lineupTable = lineupsTable();
+        lineupsPane.setBottom(lineupsTable);
 
 
 
@@ -247,6 +251,21 @@ public class ManageRow extends Application{
 
     }
 
+    public void createRowerCombos(String filePath){
+        teamRoster = csvReaderRower(filePath);
+        for(Rower r : teamRoster){    
+            if(r.getSide().equals("Coxswain")){
+                coxs.getItems().add(r.getName());
+            }
+            else if((r.getSide().equals("Port") || r.getSide().equals("Both") )){
+                ports.getItems().add(r.getName());
+            }
+            else if((r.getSide().equals("Starboard") || r.getSide().equals("Both"))){
+                starboards.getItems().add(r.getName());
+            }
+        }
+    }
+
     public void popThumbnails(){
         for(int i = 0; i < 4; i ++){
             for(int j = 0; j < 8; j ++){
@@ -257,9 +276,10 @@ public class ManageRow extends Application{
         }
     }
 
-    public void lineupsTable(Boat b){
-
+    public HBox lineupsTable(Boat b){
+        HBox lineup = new HBox(10);
         for(int i = 0; i < b.getLineup().length; i++){
+            int rig = b.getRig();
             VBox seat = new VBox(0);
             VBox rower = new VBox(0);
             VBox combo = new VBox(10);
@@ -272,15 +292,23 @@ public class ManageRow extends Application{
             else if(i == b.getLineup().length-2){
                 seatLabel = new Label("Stroke");
             }
+            else if(2% i == 1){
+                rower.getChildren().add(starboards);
+            }
+            else if(2% i == 0){
+                rower.getChildren().add(ports);
+            }
             else if(i == b.getLineup().length-1){
                 seatLabel = new Label("Coxswain");
+                rower.getChildren().add(coxs);
             }
             else{
                 seatLabel = new Label("" + (i + 1));
             }
+            combo.getChildren().addAll(seatLabel, rower);
+            lineup.getChildren().add(combo);
         }
-        
-
+        return lineup;      
             
     }
 
@@ -318,7 +346,7 @@ public class ManageRow extends Application{
        GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
        Boat b =  Boat.getBoat(boatName, fleet);
        b.drawBoat(gc);
-       lineupsTable(b);
+       lineupsTable = lineupsTable(b);
     }
 
     //********************** CSV Tools **********************/
@@ -353,23 +381,25 @@ public class ManageRow extends Application{
         }
     }
 
-    public ArrayList<Rower> csvWriterRower(String filePath) {
+    public ArrayList<Rower> csvReaderRower(String filePath) {
         ArrayList<Rower> dataList = new ArrayList<Rower>();
-            try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    System.out.println(line);
-                    String[] values = line.split("\\|");
-                    //System.out.println(values[0]);
-                    Rower data = new Rower(values[0], values[1], values[2], Double.valueOf(values[3])); // assuming the CSV has three columns
-                    //name, size, rig
-                    //System.out.println(data);
-                    dataList.add(data);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                System.out.println(line);
+                String[] values = line.split("\\|");
+                //System.out.println(values[0]);
+                Rower data = new Rower(values[0], values[1], values[2], Double.valueOf(values[3])); // assuming the CSV has three columns
+                //name, size, rig
+                //System.out.println(data);
+                dataList.add(data);
             }
-            return dataList;
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return dataList;
     }
 
 
