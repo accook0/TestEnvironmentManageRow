@@ -204,10 +204,16 @@ public class ManageRow extends Application{
         boatsDropDown.setPrefWidth(100);
         fleet = readBoatCsv("boats.csv"); //returns the csv
         //System.out.println(fleet.toString());
+        //boatsDropDown.getItems().clear();
         for(Boat b : fleet){ //read the csv here, create combo box
+            
             boatsDropDown.getItems().add(b.getName());
         }
-
+        if(currentBoat != null)
+        {
+            boatsDropDown.setValue(currentBoat.getName());
+        }
+        System.out.println(currentBoat);
         VBox selectBoat = new VBox(20);
         selectBoat.getChildren().addAll(boatsDropDown);
 
@@ -228,11 +234,18 @@ public class ManageRow extends Application{
 
 
         //this is for the proof of consept
-        Boat b = new Boat(4, "Conte", 1);
-        
-        HBox test = lineupsTable(b);
+        //Boat b = new Boat(4, "Conte", 1);
+        if(currentBoat != null)
+        {
+        HBox test = lineupsTable(currentBoat);
         lineupsPane.setBottom(test);
+        String boatName = String.valueOf(boatsDropDown.getValue());
+        GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
+        Boat b =  Boat.getBoat(boatName, fleet);
+        b.drawBoat(gc, -1);
+        }
         lineupsPane.setRight(rosterTable);
+        
         
         
 
@@ -366,6 +379,7 @@ public class ManageRow extends Application{
                     if(r2.getName().equals(rowerLabel2.getSelectionModel().getSelectedItem()))
                     {
                         b.addRower(r2, seat2 + 1);
+                        setLineupsTab(lineupsTab);
                         break;
                     }
                 }
@@ -602,7 +616,7 @@ public class ManageRow extends Application{
         //draw the boat
         GraphicsContext gc = boatImg.getGraphicsContext2D();
         gc.clearRect(0, 0, boatImg.getWidth(), boatImg.getHeight());
-        b.drawBoat(gc);
+        b.drawBoat(gc, -1);
         saveImg(c, boatName);
 
         //popThumbnails(boatName);
@@ -615,11 +629,12 @@ public class ManageRow extends Application{
     }
     public void selectBoat(){ //only draws boats that have been pre drawn
        String boatName = String.valueOf(boatsDropDown.getValue());
-       GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
+       //GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
        Boat b =  Boat.getBoat(boatName, fleet);
-       b.drawBoat(gc);
+       //b.drawBoat(gc, -1);
        lineupsTable = lineupsTable(b);
        currentBoat = b;
+       setLineupsTab(lineupsTab);
     }
 
     //********************** CSV Tools **********************/
