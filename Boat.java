@@ -117,7 +117,7 @@ public class Boat
     }
 
 
-    public void drawBoat(GraphicsContext gc){
+    public void drawBoat(GraphicsContext gc, int seatNum){
         gc.clearRect(0, 0, 400, 400);
         gc.setStroke(Color.BLACK);
         int coordx = 0;
@@ -190,7 +190,12 @@ public class Boat
                     gc.setFill(STARBOARD); //this is my branch
 
                 }
-                gc.strokeOval(coordx, coordy, 20, 20);
+                if(i == seatNum){
+                    gc.fillOval(coordx, coordy, 20, 20);
+                }
+                else{
+                    gc.strokeOval(coordx, coordy, 20, 20);
+                }
                 coordx += 30;
             }
         }
