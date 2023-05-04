@@ -133,6 +133,7 @@ public class ManageRow extends Application{
 
         rosterTab.setText("Roster");
         rosterTab.setClosable(false);
+        setRosterTab(rosterTab);
 
 
         learnMore.setText("LearnMore");
@@ -239,6 +240,84 @@ public class ManageRow extends Application{
         lineups.setContent(lineupsPane);
     }
 
+    private void setRosterTab(Tab rosterTab){
+        BorderPane rosterPane = new BorderPane();
+        VBox rowers = new VBox(10);
+        rosterPane.setPadding(new Insets(10));
+
+        HBox nameAndWeight = new HBox(10);
+        Label rowerName = new Label("Name");
+        TextField rowerNameField2 = new TextField();
+        Label weight = new Label("Lbs");
+        TextField weightField = new TextField();
+        nameAndWeight.getChildren().addAll(rowerName, rowerNameField2, weight, weightField);
+
+        HBox positionAndRemove = new HBox(10);
+        Label positionLabel = new Label("Position");
+        ComboBox positionDropDown = new ComboBox();
+        for(int i = 0; i < POSITIONS.length-1; i++)
+        {
+            positionDropDown.getItems().add(POSITIONS[i]);;
+        }
+        Button removeRowerButton = new Button("Remove");
+        positionAndRemove.getChildren().addAll(positionLabel, positionDropDown, removeRowerButton);
+
+        HBox ergScoreAndSave = new HBox(10);
+        Label ergLabel = new Label("2k");
+        TextField ergScore = new TextField();
+        Button saveRowerButton = new Button("Save");
+        ergScoreAndSave.getChildren().addAll(ergLabel, ergScore, saveRowerButton);
+
+
+        rowers.getChildren().addAll(nameAndWeight, positionAndRemove, ergScoreAndSave);
+        
+        TableView<Rower> rowerTable = createRowerRosterView();
+        TableView<Rower> coxTable = createCoxRosterView();
+
+        VBox rowerTableBox = new VBox(20);
+        VBox coxTableBox = new VBox(20);
+        //Create stuff below cox table
+        VBox coxFields = new VBox(20);
+        HBox coxNameFields = new HBox(10);
+        HBox coxyearFields = new HBox(10);
+
+        Label coxNameLabel = new Label("Name");
+        TextField coxNameField = new TextField();
+        Button removeCoxButton = new Button("Remove");
+        coxNameFields.getChildren().addAll(coxNameLabel, coxNameField, removeCoxButton);
+
+        Label coxYearLabel = new Label("Year");
+        ComboBox yearDropDown = new ComboBox();
+        for(int i = 2023; i < 2027; i++)
+        {
+            yearDropDown.getItems().add(i);;
+        }
+        Button addCoxButton = new Button("Save");
+        coxyearFields.getChildren().addAll(coxYearLabel, yearDropDown, addCoxButton);
+
+        coxFields.getChildren().addAll(coxNameFields, coxyearFields);
+
+        rowerTableBox.getChildren().addAll(rowerTable, rowers);
+        rosterPane.setLeft(rowerTableBox);
+
+        coxTableBox.getChildren().addAll(coxTable, coxFields);
+        rosterPane.setRight(coxTableBox);
+
+        rosterTab.setContent(rosterPane);
+
+        
+        saveRowerButton.setOnAction(e-> {
+            Rower temp = new Rower(rowerNameField2.getText(), String.valueOf(positionDropDown.getValue()), ergScore.getText(), Double.valueOf(weightField.getText()));
+            teamRoster.add(temp);
+            System.out.println(teamRoster.toString());
+
+            /* createRowerRosterView();
+            createCoxRosterView(); */
+            setRosterTab(rosterTab);
+            setLineupsTab(lineupsTab);
+
+        }); //working here
+    }
 
     private void setHandlers(Canvas c){
         newBoatButton.setOnAction(e-> addBoat(c));
@@ -350,6 +429,74 @@ public class ManageRow extends Application{
         
         return table;
     }
+    public TableView<Rower> createRowerRosterView(){
+        ArrayList<Rower> rowersOnly = new ArrayList<Rower>();
+        for(Rower r: teamRoster)
+        {
+            if(!r.getSide().equals(POSITIONS[3]))
+            {
+                rowersOnly.add(r);
+            }
+        }
+        System.out.println(rowersOnly);
+        ObservableList<Rower> observable_roster = FXCollections.observableArrayList(rowersOnly);
+        ListView<Rower> roster_view = new ListView<Rower>();
+        roster_view.setItems(observable_roster);
+        TableView<Rower> table = new TableView<Rower>();
+        table.setItems(observable_roster);
+
+        TableColumn<Rower, String> nameCol = new TableColumn<Rower, String>("Name");
+        nameCol.setCellValueFactory(new PropertyValueFactory("name"));
+        nameCol.setPrefWidth(100);
+
+        TableColumn<Rower, String> sideCol = new TableColumn<Rower, String>("Position");
+        sideCol.setCellValueFactory(new PropertyValueFactory("side"));
+        sideCol.setPrefWidth(100);
+        
+        TableColumn<Rower, String> ergCol = new TableColumn<Rower, String>("2k");
+        ergCol.setCellValueFactory(new PropertyValueFactory("ergScore"));
+        ergCol.setPrefWidth(100);
+        
+        TableColumn<Rower, Double> weightCol = new TableColumn<Rower, Double>("Weight");
+        weightCol.setCellValueFactory(new PropertyValueFactory("weight"));
+        weightCol.setPrefWidth(100);
+                
+        table.getColumns().setAll(nameCol, sideCol, ergCol, weightCol);
+        
+        csvWriterRower(rowersOnly);
+        return table;
+    }
+
+    public TableView<Rower> createCoxRosterView(){
+        ArrayList<Rower> coxesOnly = new ArrayList<Rower>();
+        for(Rower r: teamRoster)
+        {
+            if(r.getSide().equals(POSITIONS[3]))
+            {
+                coxesOnly.add(r);
+            }
+        }
+        ObservableList<Rower> observable_roster = FXCollections.observableArrayList(coxesOnly);
+        ListView<Rower> roster_view = new ListView<Rower>();
+        roster_view.setItems(observable_roster);
+        
+        TableView<Rower> table = new TableView<Rower>();
+        table.setItems(observable_roster);
+        
+        TableColumn<Rower, String> nameCol = new TableColumn<Rower, String>("Name");
+        nameCol.setCellValueFactory(new PropertyValueFactory("name"));
+        nameCol.setPrefWidth(150);
+
+        TableColumn<Rower, String> classCol = new TableColumn<Rower, String>("Year");
+        classCol.setCellValueFactory(new PropertyValueFactory("classYear"));
+        classCol.setPrefWidth(150);
+        
+        table.getColumns().setAll(nameCol, classCol);
+        
+        
+        return table;
+    }
+
 
     public void saveImg(Canvas canvas, String name){
         WritableImage writableImage = new WritableImage(400, 400);
@@ -483,26 +630,41 @@ public class ManageRow extends Application{
         FileWriter csvWriter = null;
         try {
             csvWriter = new FileWriter(csvFilePath);
-            for (Rower line : data) {
-                csvWriter.append(line.getName());
-                csvWriter.append("|");
-                csvWriter.append(line.getSide());
-                csvWriter.append("|");
-                csvWriter.append(line.getErgScore());
-                csvWriter.append("|");
-                csvWriter.append(String.valueOf(line.getWeight()));
-                csvWriter.append("\n");
 
+            for (Rower line : data) {
+                if(line.getSide() == "Port" || line.getSide() == "Starboard" || line.getSide() == "Both"){
+                    csvWriter.append(line.getName());
+                    csvWriter.append("|");
+                    csvWriter.append(line.getSide());
+                    csvWriter.append("|");
+                    csvWriter.append(line.getErgScore());
+                    csvWriter.append("|");
+                    csvWriter.append(String.valueOf(line.getWeight()));
+                    csvWriter.append("|");
+                }
+                else{
+                    csvWriter.append(line.getName());
+                    csvWriter.append("|");
+                    csvWriter.append(line.getSide());
+                    csvWriter.append("|");
+                    csvWriter.append(String.valueOf(line.getWeight()));
+                    csvWriter.append("|");
+                    csvWriter.append(String.valueOf(line.getClassYear()));
+                    csvWriter.append("\n");
+                }
             }
             csvWriter.flush();
-        } catch (IOException e) {
+        } // changing csv writers to reflect the cox position needs
+        
+ 
+        catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                csvWriter.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        } 
+         try {
+            csvWriter.close();
+        } 
+        catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -510,11 +672,18 @@ public class ManageRow extends Application{
         ArrayList<Rower> dataList = new ArrayList<Rower>();
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
+            Rower data;
             while ((line = br.readLine()) != null) {
                 System.out.println(line);
                 String[] values = line.split("\\|");
                 //System.out.println(values[0]);
-                Rower data = new Rower(values[0], values[1], values[2], Double.valueOf(values[3])); // assuming the CSV has three columns
+                if(values[1].equals("Coxswain")){
+                    data = new Rower(values[0], Integer.valueOf(values[3]));
+
+                }
+                else{
+                    data = new Rower(values[0], values[1], values[2], Double.valueOf(values[3])); // assuming the CSV has three columns
+                }
                 //name, size, rig
                 //System.out.println(data);
                 dataList.add(data);
