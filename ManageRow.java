@@ -111,6 +111,8 @@ public class ManageRow extends Application{
     private Tab rosterTab = new Tab();
     private Tab learnMore = new Tab();
 
+    private Boat currentBoat;
+
     public void start(Stage stage){
         //create elements for tabs
         //createRowerCombos("roster.csv");
@@ -226,9 +228,12 @@ public class ManageRow extends Application{
 
         //this is for the proof of consept
         Boat b = new Boat(4, "Conte", 1);
+        
         HBox test = lineupsTable(b);
         lineupsPane.setBottom(test);
         lineupsPane.setRight(rosterTable);
+        
+        
 
       
         lineups.setContent(lineupsPane);
@@ -275,6 +280,18 @@ public class ManageRow extends Application{
             ComboBox rowerLabel2;
             rowerLabel2 = new ComboBox();
             rowerLabel2.getItems().add("Empty");
+            int seat2 = i;
+            rowerLabel2.setOnAction((e) -> {
+                for(Rower r2 : teamRoster)
+                {
+                    if(r2.getName().equals(rowerLabel2.getSelectionModel().getSelectedItem()))
+                    {
+                        b.addRower(r2, seat2 + 1);
+                        break;
+                    }
+                }
+                
+            });
 
             
             for(Rower r : teamRoster){
@@ -455,6 +472,7 @@ public class ManageRow extends Application{
        Boat b =  Boat.getBoat(boatName, fleet);
        b.drawBoat(gc);
        lineupsTable = lineupsTable(b);
+       currentBoat = b;
     }
 
     //********************** CSV Tools **********************/
