@@ -113,7 +113,7 @@ public class ManageRow extends Application{
 
     public void start(Stage stage){
         //create elements for tabs
-        createRowerCombos("roster.csv");
+        //createRowerCombos("roster.csv");
         
         //create tabs
         TabPane tabPane = new TabPane();
@@ -359,7 +359,6 @@ public class ManageRow extends Application{
         
         String csvFilePath = "roster.csv";
         FileWriter csvWriter = null;
-        
         try {
             csvWriter = new FileWriter(csvFilePath);
             for (Rower line : data) {

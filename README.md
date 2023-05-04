@@ -82,6 +82,7 @@ We struggled to find sources that were specific to our goals, however, we were a
 
 ## Objectives:
 * Draw boat
+    * final boat design: ![](boatFinal.jpg)
 * Select Seat/ bind boat object to table view with lineup
 * Generalize/transformations 
 * Use a re-draw function to complete/experiment with listeners and binding
