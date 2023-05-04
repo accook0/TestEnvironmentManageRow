@@ -1,0 +1,111 @@
+
+.button{
+    -fx-background-color: #8da9b8;
+    -fx-text-fill: #343434;
+}
+
+.button:hover{
+    -fx-background-color: #7597a9;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+
+
+.table-view {
+    -fx-background-color: transparent;
+}
+
+.table-view .column-header-background{
+    -fx-background-color: #425b69;
+    -fx-background-radius: 7px 7px 0px 0px;
+    -fx-padding: 0 0 0 0;
+}
+
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-text-background-color: white;
+    -fx-font-weight: bold;
+}
+
+.table-view .table-cell{
+    -fx-border-color: transparent;
+    -fx-padding: 2 0 2 10px;
+}
+.table-row-cell: hover {
+    -fx-background-color: #cfc5a925;
+    -fx-text-background-color: white;
+    -fx-font-weight: bold;
+}
+
+.table-row-cell:selected{
+    -fx-font-weight: bold;
+}
+
+.table-row-cell: odd{
+    -fx-background-color: #6D90A3;
+    -fx-background-insets: 0, 0 0 1 0;
+    -fx-padding: 0.0em;
+}
+.table-row-cell: even{
+    -fx-background-color: #8CA8B7;
+    -fx-background-insets: 0, 0 0 1 0;
+    -fx-padding: 0.0em;
+}
+
+
+
+
+.tab-header-area .tab-header-background {
+    -fx-background-color: #8CA8B7;
+}
+
+
+.tab .tab-label { 
+    -fx-alignment: CENTER;
+   -fx-text-fill: #343434;
+   -fx-font-weight: bold;
+   -fx-padding: 0 10 0 10;
+}
+
+.tab-pane .tab:selected {
+    -fx-background-color: #425b69;
+    -fx-background-insets: 0 0 0 0;
+    -fx-background-radius: 0 0 0 0;
+    -fx-tab-label-fill: white;
+ }
+
+.tab-pane:top *.tab-header-area {
+	-fx-padding: 0 0 0 30;
+    -fx-padding: 0 0 0 30;
+}
+
+.tab-pane {
+	-fx-background-color: transparent;
+	-fx-tab-min-width: 100px;
+	-fx-tab-min-height: 66px;
+	-fx-tab-max-height: 66px;
+}
+.tab-pane .tab {
+	-fx-background-color: transparent;
+}
+.tab-pane:focused .tab-header-area .headers-region .tab:selected .focus-indicator {
+ 	-fx-border-width: 0;
+	-fx-border-insets: 0 0 0 0;
+	-fx-border-radius: 0;
+}
+
+.combo-box{
+    -fx-background-color: #B1B8B6;
+    -fx-background-radius: 7px 7px 7px 7px;
+    -fx-padding: 5 5 5 5;
+}
+.combo-box .list-cell{
+    -fx-background-color: #B1B8B6;
+    -fx-text-fill:  #343434;
+}
+
+.combo-box .list-cell:hover{
+    -fx-font-weight: bold;
+    -fx-background-color: #84ABBE;
+}

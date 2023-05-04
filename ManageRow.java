@@ -114,7 +114,7 @@ public class ManageRow extends Application{
     public void start(Stage stage){
         //create elements for tabs
         //createRowerCombos("roster.csv");
-        
+        teamRoster = csvReaderRower("roster.csv");
         //create tabs
         TabPane tabPane = new TabPane();
         boatsTab.setText("Boats");
@@ -154,42 +154,7 @@ public class ManageRow extends Application{
 
     }
 
-    public void setLineupsTab(Tab lineups){
-        boatsDropDown.setPrefWidth(100);
-        fleet = readBoatCsv("boats.csv"); //returns the csv
-        //System.out.println(fleet.toString());
-        for(Boat b : fleet){ //read the csv here, create combo box
-            boatsDropDown.getItems().add(b.getName());
-        }
-
-        VBox selectBoat = new VBox(20);
-        selectBoat.getChildren().addAll(boatsDropDown);
-
-        //make all canvas things
-        BorderPane lineupsPane = new BorderPane();
-        Pane wrapperPane = new Pane();
-        lineupsPane.setCenter(wrapperPane);
-
-        //bind the canvas
-        wrapperPane.getChildren().addAll(lineupsCanvas);
-        lineupsCanvas.widthProperty().bind(wrapperPane.widthProperty());
-        lineupsCanvas.heightProperty().bind(wrapperPane.heightProperty());
-
-        lineupsPane.setPadding(new Insets(10));
-        lineupsPane.setTop(selectBoat);
-        Boat b = new Boat(5, "Conte", 1);
-        HBox test = lineupsTable(b);
-        HBox another = new HBox(10);
-        another.getChildren().addAll(ports, starboards, coxs);
-        lineupsPane.setBottom(another);
-
-
-
-        //HBox info = new HBox(100);
-        //info.getChildren().addAll(boatsDropDown);
-        //lineupsPane.getChildren().addAll(info);
-        lineups.setContent(lineupsPane);
-    }
+    
 
     public void setBoatTab(Tab boats){
         HBox boatInfo = new HBox(50);
@@ -219,12 +184,56 @@ public class ManageRow extends Application{
 
         page.setPadding(new Insets(10));
         page.setTop(boatInfo);
-        popThumbnails();
+        try {
+            popThumbnails();
+        } catch (FileNotFoundException e) {
+            // handle the exception here
+            System.out.println("this didnt work");
+            e.printStackTrace();
+        }
 
         allThumbnails.setContent(boatThumbnails);
         page.setRight(allThumbnails);
         boats.setContent(page);
     }
+
+    public void setLineupsTab(Tab lineups){
+        boatsDropDown.setPrefWidth(100);
+        fleet = readBoatCsv("boats.csv"); //returns the csv
+        //System.out.println(fleet.toString());
+        for(Boat b : fleet){ //read the csv here, create combo box
+            boatsDropDown.getItems().add(b.getName());
+        }
+
+        VBox selectBoat = new VBox(20);
+        selectBoat.getChildren().addAll(boatsDropDown);
+
+        //make all canvas things
+        BorderPane lineupsPane = new BorderPane();
+        Pane wrapperPane = new Pane();
+        lineupsPane.setCenter(wrapperPane);
+
+        //bind the canvas
+        wrapperPane.getChildren().addAll(lineupsCanvas);
+        lineupsCanvas.widthProperty().bind(wrapperPane.widthProperty());
+        lineupsCanvas.heightProperty().bind(wrapperPane.heightProperty());
+
+        lineupsPane.setPadding(new Insets(10));
+        lineupsPane.setTop(selectBoat);
+
+        TableView<Rower> rosterTable = createCoxRowerRosterView();
+
+
+        //this is for the proof of consept
+        Boat b = new Boat(4, "Conte", 1);
+        HBox test = lineupsTable(b);
+        lineupsPane.setBottom(test);
+        lineupsPane.setRight(rosterTable);
+
+      
+        lineups.setContent(lineupsPane);
+    }
+
 
     private void setHandlers(Canvas c){
         newBoatButton.setOnAction(e-> addBoat(c));
@@ -233,6 +242,97 @@ public class ManageRow extends Application{
     }
 
     //********************** Helpers **********************/
+
+    public HBox lineupsTable(Boat b)
+    {
+        HBox output = new HBox(0);
+        for(int i = 0; i < b.getLineup().length; i++)
+        {
+            VBox seat = new VBox(0);
+            VBox rower = new VBox(0);
+            VBox combo = new VBox(10);
+            combo.setPrefWidth(100);
+            combo.setPrefHeight(100);
+            Label seatLabel;
+            if(i == 0)
+            {
+                seatLabel = new Label("Bow");
+            }
+            else if(i == b.getLineup().length-2)
+            {
+                seatLabel = new Label("Stroke");
+            }
+            else if(i == b.getLineup().length-1)
+            {
+                seatLabel = new Label("Coxswain");
+            }
+            else
+            {
+                seatLabel = new Label("" + (i + 1));
+            }
+            
+            Label rowerLabel;
+            ComboBox rowerLabel2;
+            rowerLabel2 = new ComboBox();
+            rowerLabel2.getItems().add("Empty");
+
+            
+            for(Rower r : teamRoster){
+                
+                if(i == b.getLineup().length-1 && r.getSide().equals("Coxswain")){
+                    rowerLabel2.getItems().add(r.getName());
+                }
+                else if((r.getSide().equals("Port") || r.getSide().equals("Both") ) && i % 2 == b.getRig()-1){
+                    rowerLabel2.getItems().add(r.getName());
+                }
+                else if((r.getSide().equals("Starboard") || r.getSide().equals("Both") )&& i % 2 == b.getRig()){
+                    rowerLabel2.getItems().add(r.getName());
+                }
+            }
+            if(b.getLineup()[i] != null){
+            rowerLabel = new Label(b.getLineup()[i].getName());
+                rowerLabel2.setValue(b.getLineup()[i].getName());
+            }
+            else{
+                rowerLabel = new Label("Empty");
+                rowerLabel2.setValue("Empty");
+            }
+            seat.getChildren().add(seatLabel);
+            rower.getChildren().add(rowerLabel2);
+
+            combo.getChildren().addAll(seat, rower);
+
+            output.getChildren().add(combo);
+        }
+        return output;
+    }
+
+    public TableView<Rower> createCoxRowerRosterView(){
+        
+        ObservableList<Rower> observable_roster = FXCollections.observableArrayList(teamRoster);
+        ListView<Rower> roster_view = new ListView<Rower>();
+        roster_view.setItems(observable_roster);
+
+        TableView<Rower> table = new TableView<Rower>();
+        table.setItems(observable_roster);
+
+        TableColumn<Rower, String> nameCol = new TableColumn<Rower, String>("Name");
+        nameCol.setCellValueFactory(new PropertyValueFactory("name"));
+        nameCol.setPrefWidth(100);
+        
+        TableColumn<Rower, String> sideCol = new TableColumn<Rower, String>("Position");
+        sideCol.setCellValueFactory(new PropertyValueFactory("side"));
+        sideCol.setPrefWidth(100);
+        
+        TableColumn<Rower, String> ergCol = new TableColumn<Rower, String>("2k");
+        ergCol.setCellValueFactory(new PropertyValueFactory("ergScore"));
+        ergCol.setPrefWidth(100);
+
+
+        table.getColumns().setAll(nameCol, sideCol, ergCol);
+        
+        return table;
+    }
 
     public void saveImg(Canvas canvas, String name){
         WritableImage writableImage = new WritableImage(400, 400);
@@ -255,6 +355,7 @@ public class ManageRow extends Application{
 
     }
 
+    //not used rn
     public void createRowerCombos(String filePath){
         teamRoster = csvReaderRower(filePath);
         for(Rower r : teamRoster){    
@@ -270,51 +371,54 @@ public class ManageRow extends Application{
         }
     }
 
-    public void popThumbnails(){
-        for(int i = 0; i < 4; i ++){
+    public void popThumbnails() throws FileNotFoundException{
+        for(int i = 0; i < 2; i ++){
             for(int j = 0; j < 8; j ++){
                 Button b = new Button("Boat Here");
                 b.setPadding(new Insets(10));
                 boatThumbnails.add(b, i, j);
+                Image img = new Image(new FileInputStream("testimg4.png"), 100, 100, true, false);
+                ImageView imgIcon = new ImageView(img);
+                b.setGraphic(imgIcon);
             }
         }
     }
 
-    public HBox lineupsTable(Boat b){
-        HBox lineup = new HBox(10);
-        for(int i = 0; i < b.getLineup().length; i++){
-            int rig = b.getRig();
-            VBox seat = new VBox(0);
-            VBox rower = new VBox(0);
-            VBox combo = new VBox(10);
-            combo.setPrefWidth(100);
-            combo.setPrefHeight(100);
-            Label seatLabel;
-            if(i == 0){
-                seatLabel = new Label("Bow");
-            }
-            else if(i == b.getLineup().length-2){
-                seatLabel = new Label("Stroke");
-            }
-            else if(2% i == 1){
-                rower.getChildren().add(starboards);
-            }
-            else if(2% i == 0){
-                rower.getChildren().add(ports);
-            }
-            else if(i == b.getLineup().length-1){
-                seatLabel = new Label("Coxswain");
-                rower.getChildren().add(coxs);
-            }
-            else{
-                seatLabel = new Label("" + (i + 1));
-            }
-            combo.getChildren().addAll(seatLabel, rower);
-            lineup.getChildren().add(combo);
-        }
-        return lineup;      
+    // public HBox lineupsTable(Boat b){
+    //     HBox lineup = new HBox(10);
+    //     for(int i = 0; i < b.getLineup().length; i++){
+    //         int rig = b.getRig();
+    //         VBox seat = new VBox(0);
+    //         VBox rower = new VBox(0);
+    //         VBox combo = new VBox(10);
+    //         combo.setPrefWidth(100);
+    //         combo.setPrefHeight(100);
+    //         Label seatLabel;
+    //         if(i == 0){
+    //             seatLabel = new Label("Bow");
+    //         }
+    //         else if(i == b.getLineup().length-2){
+    //             seatLabel = new Label("Stroke");
+    //         }
+    //         else if(2% i == 1){
+    //             rower.getChildren().add(starboards);
+    //         }
+    //         else if(2% i == 0){
+    //             rower.getChildren().add(ports);
+    //         }
+    //         else if(i == b.getLineup().length-1){
+    //             seatLabel = new Label("Coxswain");
+    //             rower.getChildren().add(coxs);
+    //         }
+    //         else{
+    //             seatLabel = new Label("" + (i + 1));
+    //         }
+    //         combo.getChildren().addAll(seatLabel, rower);
+    //         lineup.getChildren().add(combo);
+    //     }
+    //     return lineup;      
             
-    }
+    // }
 
     //********************** Handlers **********************/
     public void addBoat(Canvas c){
