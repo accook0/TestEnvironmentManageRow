@@ -117,6 +117,7 @@ public class ManageRow extends Application{
         //create elements for tabs
         //createRowerCombos("roster.csv");
         teamRoster = csvReaderRower("roster.csv");
+        fleet = readBoatCsv("boats.csv"); //returns the csv
         //create tabs
         TabPane tabPane = new TabPane();
         boatsTab.setText("Boats");
@@ -202,7 +203,6 @@ public class ManageRow extends Application{
 
     public void setLineupsTab(Tab lineups){
         boatsDropDown.setPrefWidth(100);
-        fleet = readBoatCsv("boats.csv"); //returns the csv
         //System.out.println(fleet.toString());
         //boatsDropDown.getItems().clear();
         for(Boat b : fleet){ //read the csv here, create combo box
@@ -631,11 +631,8 @@ public class ManageRow extends Application{
        String boatName = String.valueOf(boatsDropDown.getValue());
        //GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
        Boat b =  Boat.getBoat(boatName, fleet);
-<<<<<<< HEAD
-       b.drawBoat(gc, -1);
-=======
        //b.drawBoat(gc, -1);
->>>>>>> 23a94fd4fe0ca2f1b712a2bd005aaaae4f678eab
+       //b.drawBoat(gc, -1);
        lineupsTable = lineupsTable(b);
        currentBoat = b;
        setLineupsTab(lineupsTab);
