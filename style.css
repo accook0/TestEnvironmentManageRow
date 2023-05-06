@@ -65,11 +65,11 @@
     -fx-background-insets: 0 0 0 0;
     -fx-background-radius: 0 0 0 0;
 
- }
- .tab:selected .tab-label{
-    -fx-tab-label-fill: white;
- }
 
+}
+.tab-label:selected{
+    -fx-text-fill: white;
+}
 .tab .tab-label { 
     -fx-alignment: CENTER;
    -fx-text-fill: #343434;

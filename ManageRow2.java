@@ -78,6 +78,8 @@ public class ManageRow2 extends Application{
     private Boat[] boats = new Boat[14];
 
     private Button newBoatButton = new Button("New Boat");
+    private Button saveAndQuit = new Button("Save and Quit");
+
 
     private TextField boatNameField =  new TextField();
     private TextField boatSizeField =  new TextField();
@@ -115,6 +117,7 @@ public class ManageRow2 extends Application{
     private Tab rosterTab = new Tab();
     private Tab learnMore = new Tab();
 
+
     public void start(Stage stage){
         //create elements for tabs
         //createRowerCombos("roster.csv");
@@ -146,7 +149,7 @@ public class ManageRow2 extends Application{
 
         tabPane.getTabs().addAll(boatsTab, lineupsTab, rosterTab, learnMore);
         //create all handlers
-        setHandlers();//c);
+        setHandlers(stage);//c);
 
         //create the scene
         Scene scene = new Scene(tabPane);
@@ -169,6 +172,9 @@ public class ManageRow2 extends Application{
         VBox name = new VBox(10);
         VBox size = new VBox(10);
         VBox rig = new VBox(10);
+        HBox saveQuit = new HBox(100);
+        saveQuit.getChildren().add(saveAndQuit);
+        saveQuit.setAlignment(Pos.BOTTOM_RIGHT);
 
         Label boatNameLabel = new Label("Boat Name:    ");
         Label boatSizeLabel = new Label("Boat Size:   ");
@@ -202,12 +208,17 @@ public class ManageRow2 extends Application{
 
         allThumbnails.setContent(boatThumbnails);
         page.setRight(allThumbnails);
+        page.setBottom(saveQuit);
+        
         boats.setContent(page);
     }
 
     public void setLineupsTab(Tab lineups){
         boatsDropDown.setPrefWidth(100);
         fleet = readBoatCsv("boats.csv"); //returns the csv
+        HBox saveQuit = new HBox(100);
+        saveQuit.getChildren().add(saveAndQuit);
+        saveQuit.setAlignment(Pos.BOTTOM_RIGHT);
         //System.out.println(fleet.toString());
         for(Boat b : fleet){ //read the csv here, create combo box
             boatsDropDown.getItems().add(b.getName());
@@ -235,7 +246,8 @@ public class ManageRow2 extends Application{
         //this is for the proof of consept
         Boat b = new Boat(4, "Conte", 1);
         HBox test = lineupsTable(b);
-        lineupsPane.setBottom(test);
+        HBox bottom = new HBox(10, test, saveQuit);
+        lineupsPane.setBottom(bottom);
         lineupsPane.setRight(rosterTable);
 
       
@@ -246,6 +258,9 @@ public class ManageRow2 extends Application{
         BorderPane rosterPane = new BorderPane();
         VBox rowers = new VBox(10);
         rosterPane.setPadding(new Insets(10));
+        HBox saveQuit = new HBox(100);
+        saveQuit.getChildren().add(saveAndQuit);
+        saveQuit.setAlignment(Pos.BOTTOM_RIGHT);
 
         HBox nameAndWeight = new HBox(10);
         Label rowerName = new Label("Name");
@@ -304,6 +319,7 @@ public class ManageRow2 extends Application{
 
         coxTableBox.getChildren().addAll(coxTable, coxFields);
         rosterPane.setRight(coxTableBox);
+        rosterPane.setBottom(saveQuit);
 
         rosterTab.setContent(rosterPane);
 
@@ -322,6 +338,7 @@ public class ManageRow2 extends Application{
     }
 
     public void setLearnMoreTab(Tab learnMore){
+  
         Image gifImage = new Image("LearnMore.gif");
         
         // Create an ImageView object to display the GIF image
@@ -329,16 +346,23 @@ public class ManageRow2 extends Application{
         
         // Create a Pane to hold the ImageView
         ScrollPane pane = new ScrollPane(gifImageView);
+
         learnMore.setContent(pane);
     }
-    private void setHandlers() { //Canvas c){
+    private void setHandlers(Stage stage) { //Canvas c){
         newBoatButton.setOnAction(e-> addBoat()); //c));
         boatsDropDown.setOnAction(e -> selectBoat()); //make this
+        saveAndQuit.setOnAction(e-> saveAndQuitHandler(stage));
         
     }
 
     //********************** Helpers **********************/
 
+    public void saveAndQuitHandler(Stage stage){
+        csvWriterRower(teamRoster);
+        csvWriterBoat(fleet);
+        stage.close();
+    }
     public HBox lineupsTable(Boat b)
     {
         HBox output = new HBox(0);
@@ -463,7 +487,7 @@ public class ManageRow2 extends Application{
                 
         table.getColumns().setAll(nameCol, sideCol, ergCol, weightCol);
         
-        csvWriterRower(rowersOnly);
+        //csvWriterRower(rowersOnly);
         return table;
     }
 
@@ -551,7 +575,7 @@ public class ManageRow2 extends Application{
 
                 if (toBoatAdded < boatAdded) {
                     GraphicsContext gc = c.getGraphicsContext2D();
-                    boats[toBoatAdded++].drawBoat(gc, 2);
+                    boats[toBoatAdded++].drawBoat(gc, -1);
                     System.out.println("called " + boatAdded);
                 }
                 
@@ -620,7 +644,7 @@ public class ManageRow2 extends Application{
         boats[boatAdded++] = b;
 
         fleet.add(b);
-        csvWriterBoat(fleet); //ideally this would only do new ones but we dont have a save button
+        //csvWriterBoat(fleet); //ideally this would only do new ones but we dont have a save button
         boatsDropDown.getItems().add(b.getName());
         //draw the boat
         GraphicsContext gc = boatImg.getGraphicsContext2D();

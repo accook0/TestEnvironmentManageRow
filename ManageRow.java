@@ -64,6 +64,7 @@ import java.io.FileWriter;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.List;
+import javafx.stage.Window;
 
 
 
@@ -73,6 +74,7 @@ public class ManageRow extends Application{
     private static final String[] POSITIONS = {"Port", "Starboard", "Both", "Coxswain"};
     private static final Integer[] BOATS = {1, 2, 4, 8};
     private static final String[] RIGS = {"Port", "Starboard"};
+    
     private Button newBoatButton = new Button("New Boat");
 
     private static int boatAdded = 0;
@@ -107,8 +109,8 @@ public class ManageRow extends Application{
 
     private TextArea displayArea =  new TextArea();
 
-    private static ArrayList<Boat> fleet = new ArrayList<Boat>();
-    private static ArrayList<Rower> teamRoster = new ArrayList<Rower>();
+    private  ArrayList<Boat> fleet = new ArrayList<Boat>();
+    private  ArrayList<Rower> teamRoster = new ArrayList<Rower>();
 
     private Tab boatsTab = new Tab();
     private Tab lineupsTab = new Tab();
@@ -128,26 +130,27 @@ public class ManageRow extends Application{
         boatsTab.setText("Boats");
         boatsTab.setClosable(false);
         Canvas c = new Canvas();
-        setBoatTab(boatsTab);
+        setBoatTab();
 
 
 
         lineupsTab.setText("Lineups");
         lineupsTab.setClosable(false);
-        setLineupsTab(lineupsTab);
+        setLineupsTab();
 
 
         rosterTab.setText("Roster");
         rosterTab.setClosable(false);
-        setRosterTab(rosterTab);
+        setRosterTab();
 
 
         learnMore.setText("LearnMore");
         learnMore.setClosable(false);
+        setLearnMoreTab();
 
         tabPane.getTabs().addAll(boatsTab, lineupsTab, rosterTab, learnMore);
         //create all handlers
-        setHandlers(c);
+        setHandlers();
 
         //create the scene
         Scene scene = new Scene(tabPane);
@@ -165,11 +168,19 @@ public class ManageRow extends Application{
 
     
 
-    public void setBoatTab(Tab boats){
+    public void setBoatTab(){
         HBox boatInfo = new HBox(50);
         VBox name = new VBox(10);
         VBox size = new VBox(10);
         VBox rig = new VBox(10);
+
+        Button saveAndQuit = new Button("Save and Quit");
+        HBox saveQuit = new HBox(100);
+        saveQuit.getChildren().add(saveAndQuit);
+        saveQuit.setAlignment(Pos.TOP_RIGHT);
+        saveAndQuit.setOnAction(e-> saveAndQuitHandler());
+
+
 
         Label boatNameLabel = new Label("Boat Name:    ");
         Label boatSizeLabel = new Label("Boat Size:   ");
@@ -193,17 +204,26 @@ public class ManageRow extends Application{
 
         page.setPadding(new Insets(10));
         page.setTop(boatInfo);
+        page.setBottom(saveQuit);
+
         popThumbnails();
        
 
 
         allThumbnails.setContent(boatThumbnails);
         page.setRight(allThumbnails);
-        boats.setContent(page);
+        boatsTab.setContent(page);
     }
 
-    public void setLineupsTab(Tab lineups){
+    public void setLineupsTab(){
         boatsDropDown.setPrefWidth(100);
+
+        Button saveAndQuit = new Button("Save and Quit");
+        HBox saveQuit = new HBox(100);
+        saveQuit.getChildren().add(saveAndQuit);
+        saveQuit.setAlignment(Pos.TOP_RIGHT);
+        saveAndQuit.setOnAction(e-> saveAndQuitHandler());
+
         //System.out.println(fleet.toString());
         //boatsDropDown.getItems().clear();
         // for(Boat b : fleet){ //read the csv here, create combo box
@@ -236,25 +256,32 @@ public class ManageRow extends Application{
 
         //this is for the proof of consept
         //Boat b = new Boat(4, "Conte", 1);
-        if(currentBoat != null)
-        {
-        HBox test = lineupsTable(currentBoat);
-        lineupsPane.setBottom(test);
-        String boatName = String.valueOf(boatsDropDown.getValue());
-        GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
-        Boat b =  Boat.getBoat(boatName, fleet);
-        b.drawBoat(gc, -1);
+        if(currentBoat != null){
+            HBox test = lineupsTable(currentBoat);
+            lineupsPane.setBottom(test);
+            String boatName = String.valueOf(boatsDropDown.getValue());
+            GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
+            Boat b =  Boat.getBoat(boatName, fleet);
+            b.drawBoat(gc, -1);
         }
-        lineupsPane.setRight(rosterTable);
 
+        lineupsPane.setRight(rosterTable);
+        lineupsPane.setBottom(saveQuit);
       
-        lineups.setContent(lineupsPane);
+        lineupsTab.setContent(lineupsPane);
     }
 
-    private void setRosterTab(Tab rosterTab){
+    private void setRosterTab(){
         BorderPane rosterPane = new BorderPane();
         VBox rowers = new VBox(10);
         rosterPane.setPadding(new Insets(10));
+
+        Button saveAndQuit = new Button("Save and Quit");
+        HBox saveQuit = new HBox(100);
+        saveQuit.getChildren().add(saveAndQuit);
+        saveQuit.setAlignment(Pos.BOTTOM_RIGHT);
+        saveAndQuit.setOnAction(e-> saveAndQuitHandler());
+
 
         HBox nameAndWeight = new HBox(10);
         Label rowerName = new Label("Name");
@@ -313,6 +340,7 @@ public class ManageRow extends Application{
 
         coxTableBox.getChildren().addAll(coxTable, coxFields);
         rosterPane.setRight(coxTableBox);
+        rosterPane.setBottom(saveQuit);
 
         rosterTab.setContent(rosterPane);
 
@@ -324,19 +352,37 @@ public class ManageRow extends Application{
 
             /* createRowerRosterView();
             createCoxRosterView(); */
-            setRosterTab(rosterTab);
-            setLineupsTab(lineupsTab);
+            setRosterTab();
+            setLineupsTab();
 
         }); //working here
     }
 
-    private void setHandlers(Canvas c){
-        newBoatButton.setOnAction(e-> addBoat(c));
+    private void setHandlers(){
+        newBoatButton.setOnAction(e-> addBoat());
         boatsDropDown.setOnAction(e -> selectBoat()); //make this
+
         
+    }
+    public void setLearnMoreTab(){
+        Image gifImage = new Image("LearnMore.gif");
+        
+        // Create an ImageView object to display the GIF image
+        ImageView gifImageView = new ImageView(gifImage);
+        
+        // Create a Pane to hold the ImageView
+        ScrollPane pane = new ScrollPane(gifImageView);
+        learnMore.setContent(pane);
     }
 
     //********************** Helpers **********************/
+    public void saveAndQuitHandler(){
+        csvWriterRower(teamRoster);
+        csvWriterBoat(fleet);
+        Scene scene = boatsDropDown.getScene();
+        Window wn = scene.getWindow();
+        wn.hide();
+    }
 
     public void buildBoatSelection(){
         for(Boat b : fleet){ //read the csv here, create combo box
@@ -383,7 +429,7 @@ public class ManageRow extends Application{
                     if(r2.getName().equals(rowerLabel2.getSelectionModel().getSelectedItem()))
                     {
                         b.addRower(r2, seat2 + 1);
-                        setLineupsTab(lineupsTab);
+                        setLineupsTab();
                         break;
                     }
                 }
@@ -635,7 +681,7 @@ public class ManageRow extends Application{
     // }
 
     //********************** Handlers **********************/
-    public void addBoat(Canvas c){
+    public void addBoat(){
         //check rig to draw boat
         int rigin = 0;
         if(String.valueOf(rigOptions.getValue()) == RIGS[1]){
@@ -674,7 +720,7 @@ public class ManageRow extends Application{
        //b.drawBoat(gc, -1);
        lineupsTable = lineupsTable(b);
        currentBoat = b;
-       setLineupsTab(lineupsTab);
+       setLineupsTab();
     }
 
     //********************** CSV Tools **********************/
