@@ -111,6 +111,8 @@ public class ManageRow extends Application{
     private Tab rosterTab = new Tab();
     private Tab learnMore = new Tab();
 
+    private Boat currentBoat;
+
     public void start(Stage stage){
         //create elements for tabs
         //createRowerCombos("roster.csv");
@@ -202,10 +204,16 @@ public class ManageRow extends Application{
         boatsDropDown.setPrefWidth(100);
         fleet = readBoatCsv("boats.csv"); //returns the csv
         //System.out.println(fleet.toString());
+        //boatsDropDown.getItems().clear();
         for(Boat b : fleet){ //read the csv here, create combo box
+            
             boatsDropDown.getItems().add(b.getName());
         }
-
+        if(currentBoat != null)
+        {
+            boatsDropDown.setValue(currentBoat.getName());
+        }
+        System.out.println(currentBoat);
         VBox selectBoat = new VBox(20);
         selectBoat.getChildren().addAll(boatsDropDown);
 
@@ -226,10 +234,20 @@ public class ManageRow extends Application{
 
 
         //this is for the proof of consept
-        Boat b = new Boat(4, "Conte", 1);
-        HBox test = lineupsTable(b);
+        //Boat b = new Boat(4, "Conte", 1);
+        if(currentBoat != null)
+        {
+        HBox test = lineupsTable(currentBoat);
         lineupsPane.setBottom(test);
+        String boatName = String.valueOf(boatsDropDown.getValue());
+        GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
+        Boat b =  Boat.getBoat(boatName, fleet);
+        b.drawBoat(gc, -1);
+        }
         lineupsPane.setRight(rosterTable);
+        
+        
+        
 
       
         lineups.setContent(lineupsPane);
@@ -354,6 +372,19 @@ public class ManageRow extends Application{
             ComboBox rowerLabel2;
             rowerLabel2 = new ComboBox();
             rowerLabel2.getItems().add("Empty");
+            int seat2 = i;
+            rowerLabel2.setOnAction((e) -> {
+                for(Rower r2 : teamRoster)
+                {
+                    if(r2.getName().equals(rowerLabel2.getSelectionModel().getSelectedItem()))
+                    {
+                        b.addRower(r2, seat2 + 1);
+                        setLineupsTab(lineupsTab);
+                        break;
+                    }
+                }
+                
+            });
 
             
             for(Rower r : teamRoster){
@@ -598,10 +629,16 @@ public class ManageRow extends Application{
     }
     public void selectBoat(){ //only draws boats that have been pre drawn
        String boatName = String.valueOf(boatsDropDown.getValue());
-       GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
+       //GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
        Boat b =  Boat.getBoat(boatName, fleet);
+<<<<<<< HEAD
        b.drawBoat(gc, -1);
+=======
+       //b.drawBoat(gc, -1);
+>>>>>>> 23a94fd4fe0ca2f1b712a2bd005aaaae4f678eab
        lineupsTable = lineupsTable(b);
+       currentBoat = b;
+       setLineupsTab(lineupsTab);
     }
 
     //********************** CSV Tools **********************/
