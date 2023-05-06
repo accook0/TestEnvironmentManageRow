@@ -67,12 +67,16 @@ import java.util.List;
 
 
 
-public class ManageRow extends Application{
+public class ManageRow2 extends Application{
     private static final int WIDTH = 800;
     private static final int HEIGHT = 600;
     private static final String[] POSITIONS = {"Port", "Starboard", "Both", "Coxswain"};
     private static final Integer[] BOATS = {1, 2, 4, 8};
     private static final String[] RIGS = {"Port", "Starboard"};
+
+    private static int boatAdded = 0;
+    private Boat[] boats = new Boat[14];
+
     private Button newBoatButton = new Button("New Boat");
 
     private TextField boatNameField =  new TextField();
@@ -119,7 +123,9 @@ public class ManageRow extends Application{
         TabPane tabPane = new TabPane();
         boatsTab.setText("Boats");
         boatsTab.setClosable(false);
-        Canvas c = new Canvas();
+      
+      
+        // Canvas c = new Canvas();
         setBoatTab(boatsTab);
 
 
@@ -136,10 +142,11 @@ public class ManageRow extends Application{
 
         learnMore.setText("LearnMore");
         learnMore.setClosable(false);
+        setLearnMoreTab(learnMore);
 
         tabPane.getTabs().addAll(boatsTab, lineupsTab, rosterTab, learnMore);
         //create all handlers
-        setHandlers(c);
+        setHandlers();//c);
 
         //create the scene
         Scene scene = new Scene(tabPane);
@@ -185,13 +192,13 @@ public class ManageRow extends Application{
 
         page.setPadding(new Insets(10));
         page.setTop(boatInfo);
-        try {
+       // try {
             popThumbnails();
-        } catch (FileNotFoundException e) {
+     //   } catch (FileNotFoundException e) {
             // handle the exception here
-            System.out.println("this didnt work");
-            e.printStackTrace();
-        }
+       //     System.out.println("this didnt work");
+       //     e.printStackTrace();
+      //  }
 
         allThumbnails.setContent(boatThumbnails);
         page.setRight(allThumbnails);
@@ -314,8 +321,18 @@ public class ManageRow extends Application{
         }); //working here
     }
 
-    private void setHandlers(Canvas c){
-        newBoatButton.setOnAction(e-> addBoat(c));
+    public void setLearnMoreTab(Tab learnMore){
+        Image gifImage = new Image("LearnMore.gif");
+        
+        // Create an ImageView object to display the GIF image
+        ImageView gifImageView = new ImageView(gifImage);
+        
+        // Create a Pane to hold the ImageView
+        ScrollPane pane = new ScrollPane(gifImageView);
+        learnMore.setContent(pane);
+    }
+    private void setHandlers() { //Canvas c){
+        newBoatButton.setOnAction(e-> addBoat()); //c));
         boatsDropDown.setOnAction(e -> selectBoat()); //make this
         
     }
@@ -518,15 +535,34 @@ public class ManageRow extends Application{
         }
     }
 
-    public void popThumbnails() throws FileNotFoundException{
+    public void popThumbnails() { //throws FileNotFoundException{
+
+        int toBoatAdded = 0;
+        int debug = 0;
+     //   while (toBoatAdded == boatAdded) {
+
+    //    }
+
         for(int i = 0; i < 2; i ++){
             for(int j = 0; j < 8; j ++){
-                Button b = new Button("Boat Here");
-                b.setPadding(new Insets(10));
-                boatThumbnails.add(b, i, j);
-                Image img = new Image(new FileInputStream("testimg4.png"), 100, 100, true, false);
-                ImageView imgIcon = new ImageView(img);
-                b.setGraphic(imgIcon);
+       
+              //  Button b = new Button("Boat Here" + debug++);
+                Canvas c = new Canvas(100, 100);
+
+                if (toBoatAdded < boatAdded) {
+                    GraphicsContext gc = c.getGraphicsContext2D();
+                    boats[toBoatAdded++].drawBoat(gc, 2);
+                    System.out.println("called " + boatAdded);
+                }
+                
+
+              //  b.setPadding(new Insets(10));
+                boatThumbnails.add(c, i, j);
+ 
+             //   Image img = new Image(new FileInputStream("testimg4.png"), 100, 100, true, false);
+             //   ImageView imgIcon = new ImageView(img);
+ 
+            //    b.setGraphic(imgIcon);
             }
         }
     }
@@ -568,7 +604,7 @@ public class ManageRow extends Application{
     // }
 
     //********************** Handlers **********************/
-    public void addBoat(Canvas c){
+    public void addBoat() { //Canvas c){
         //check rig to draw boat
         int rigin = 0;
         if(String.valueOf(rigOptions.getValue()) == RIGS[1]){
@@ -579,14 +615,21 @@ public class ManageRow extends Application{
 
 
         Boat b = new Boat(Integer.valueOf(String.valueOf((boatSizes.getValue()))), boatNameField.getText(), rigin);
+
+
+        boats[boatAdded++] = b;
+
         fleet.add(b);
         csvWriterBoat(fleet); //ideally this would only do new ones but we dont have a save button
         boatsDropDown.getItems().add(b.getName());
         //draw the boat
         GraphicsContext gc = boatImg.getGraphicsContext2D();
         gc.clearRect(0, 0, boatImg.getWidth(), boatImg.getHeight());
+     
+     // Elodie
         b.drawBoat(gc, -1);
-        saveImg(c, boatName);
+       
+//     saveImg(c, boatName);
 
         //popThumbnails(boatName);
 
@@ -595,13 +638,17 @@ public class ManageRow extends Application{
         boatSizeField.setText("");
         boatNameField.setText("");
 
+        popThumbnails();
+
     }
     public void selectBoat(){ //only draws boats that have been pre drawn
        String boatName = String.valueOf(boatsDropDown.getValue());
        GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
        Boat b =  Boat.getBoat(boatName, fleet);
-       b.drawBoat(gc, -1);
-       lineupsTable = lineupsTable(b);
+
+       // Elodie
+        b.drawBoat(gc, -1);
+        lineupsTable = lineupsTable(b);
     }
 
     //********************** CSV Tools **********************/

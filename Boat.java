@@ -118,6 +118,9 @@ public class Boat
 
 
     public void drawBoat(GraphicsContext gc, int seatNum){
+
+        
+        
         gc.clearRect(0, 0, 400, 400);
         gc.setStroke(Color.BLACK);
         int coordx = 0;
@@ -129,15 +132,23 @@ public class Boat
 
         if (this.getSize() == 5){
             translatey = 150;
+            gc.scale(.5,.5);//elodie
+
         }
         else if (this.getSize() == 9){
             translatey = 250;
+            gc.scale(.35,.35);//elodie
+
         }
         else if (this.getSize() == 2){
             translatey = 150;
+            gc.scale(.5,.5);//elodie
+
         }
         else if (this.getSize() == 1){
             translatey = 150;
+            gc.scale(.5,.5);//elodie
+
         }
         gc.translate(0, translatey);
         gc.rotate(-45);
@@ -203,7 +214,7 @@ public class Boat
         gc.rotate(45);
         gc.translate(0, -translatey);
         System.out.println("rotate");
-
+        gc.restore(); //elodie
     }
 
     @Override
