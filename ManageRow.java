@@ -75,6 +75,10 @@ public class ManageRow extends Application{
     private static final String[] RIGS = {"Port", "Starboard"};
     private Button newBoatButton = new Button("New Boat");
 
+    private static int boatAdded = 0;
+    private Boat[] boats = new Boat[20];
+
+
     private TextField boatNameField =  new TextField();
     private TextField boatSizeField =  new TextField();
     private TextField rowerNameField =  new TextField();
@@ -189,13 +193,9 @@ public class ManageRow extends Application{
 
         page.setPadding(new Insets(10));
         page.setTop(boatInfo);
-        try {
-            popThumbnails();
-        } catch (FileNotFoundException e) {
-            // handle the exception here
-            System.out.println("this didnt work");
-            e.printStackTrace();
-        }
+        popThumbnails();
+       
+
 
         allThumbnails.setContent(boatThumbnails);
         page.setRight(allThumbnails);
@@ -246,9 +246,6 @@ public class ManageRow extends Application{
         b.drawBoat(gc, -1);
         }
         lineupsPane.setRight(rosterTable);
-        
-        
-        
 
       
         lineups.setContent(lineupsPane);
@@ -556,18 +553,50 @@ public class ManageRow extends Application{
         }
     }
 
-    public void popThumbnails() throws FileNotFoundException{
+    public void popThumbnails() { //throws FileNotFoundException{
+
+        int toBoatAdded = 0;
+        int debug = 0;
+     //   while (toBoatAdded == boatAdded) {
+
+    //    }
+
         for(int i = 0; i < 2; i ++){
             for(int j = 0; j < 8; j ++){
-                Button b = new Button("Boat Here");
-                b.setPadding(new Insets(10));
-                boatThumbnails.add(b, i, j);
-                Image img = new Image(new FileInputStream("testimg4.png"), 100, 100, true, false);
-                ImageView imgIcon = new ImageView(img);
-                b.setGraphic(imgIcon);
+       
+              //  Button b = new Button("Boat Here" + debug++);
+                Canvas c = new Canvas(100, 100);
+
+                if (toBoatAdded < boatAdded) {
+                    GraphicsContext gc = c.getGraphicsContext2D();
+                    boats[toBoatAdded++].drawBoat(gc, -1);
+                    System.out.println("called " + boatAdded);
+                }
+                
+
+              //  b.setPadding(new Insets(10));
+                boatThumbnails.add(c, i, j);
+ 
+             //   Image img = new Image(new FileInputStream("testimg4.png"), 100, 100, true, false);
+             //   ImageView imgIcon = new ImageView(img);
+ 
+            //    b.setGraphic(imgIcon);
             }
         }
     }
+
+    // public void popThumbnails() throws FileNotFoundException{
+    //     for(int i = 0; i < 2; i ++){
+    //         for(int j = 0; j < 8; j ++){
+    //             Button b = new Button("Boat Here");
+    //             b.setPadding(new Insets(10));
+    //             boatThumbnails.add(b, i, j);
+    //             Image img = new Image(new FileInputStream("testimg4.png"), 100, 100, true, false);
+    //             ImageView imgIcon = new ImageView(img);
+    //             b.setGraphic(imgIcon);
+    //         }
+    //     }
+    // }
 
     // public HBox lineupsTable(Boat b){
     //     HBox lineup = new HBox(10);
@@ -617,21 +646,24 @@ public class ManageRow extends Application{
 
 
         Boat b = new Boat(Integer.valueOf(String.valueOf((boatSizes.getValue()))), boatNameField.getText(), rigin);
+        boats[boatAdded++] = b;
+        
         fleet.add(b);
         csvWriterBoat(fleet); //ideally this would only do new ones but we dont have a save button
         boatsDropDown.getItems().add(b.getName());
         //draw the boat
         GraphicsContext gc = boatImg.getGraphicsContext2D();
         gc.clearRect(0, 0, boatImg.getWidth(), boatImg.getHeight());
+        
         b.drawBoat(gc, -1);
-        saveImg(c, boatName);
+        //saveImg(c, boatName);
 
         //popThumbnails(boatName);
-
-
         //reset the page
         boatSizeField.setText("");
         boatNameField.setText("");
+
+        popThumbnails();
 
     }
     public void selectBoat(){ //only draws boats that have been pre drawn
