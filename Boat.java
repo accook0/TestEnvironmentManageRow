@@ -122,6 +122,7 @@ public class Boat
         
         
         gc.clearRect(0, 0, 400, 400);
+        gc.save();
         gc.setStroke(Color.BLACK);
         int coordx = 0;
         int coordy = 0;

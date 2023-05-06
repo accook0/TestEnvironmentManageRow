@@ -118,6 +118,7 @@ public class ManageRow extends Application{
         //createRowerCombos("roster.csv");
         teamRoster = csvReaderRower("roster.csv");
         fleet = readBoatCsv("boats.csv"); //returns the csv
+        buildBoatSelection();
         //create tabs
         TabPane tabPane = new TabPane();
         boatsTab.setText("Boats");
@@ -205,10 +206,10 @@ public class ManageRow extends Application{
         boatsDropDown.setPrefWidth(100);
         //System.out.println(fleet.toString());
         //boatsDropDown.getItems().clear();
-        for(Boat b : fleet){ //read the csv here, create combo box
+        // for(Boat b : fleet){ //read the csv here, create combo box
             
-            boatsDropDown.getItems().add(b.getName());
-        }
+        //     boatsDropDown.getItems().add(b.getName());
+        // }
         if(currentBoat != null)
         {
             boatsDropDown.setValue(currentBoat.getName());
@@ -339,6 +340,12 @@ public class ManageRow extends Application{
     }
 
     //********************** Helpers **********************/
+
+    public void buildBoatSelection(){
+        for(Boat b : fleet){ //read the csv here, create combo box
+            boatsDropDown.getItems().add(b.getName());
+        }
+    }
 
     public HBox lineupsTable(Boat b)
     {
