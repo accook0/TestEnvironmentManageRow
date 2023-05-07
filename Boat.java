@@ -16,7 +16,7 @@ public class Boat
     private static final int PORT_RIGGED = 0;
     private static final int STARBOARD_RIGGED = 1;
 
-
+    private ArrayList<Integer> filledSeats = new ArrayList<Integer>();
 
 
     
@@ -70,6 +70,7 @@ public class Boat
             return false;
         }
         lineup[seatNum-1] = r;
+        filledSeats.add(seatNum -1);
         return true;
     }
 
@@ -80,6 +81,7 @@ public class Boat
             return false;
         }
         lineup[seatNum] = null;
+        filledSeats.remove(seatNum -1);
         return true;
     }
 
@@ -214,7 +216,8 @@ public class Boat
                     gc.setFill(STARBOARD); //this is my branch
 
                 }
-                if(i == seatNum){
+                if(this.filledSeats.contains(i))
+                {
                     gc.fillOval(coordx, coordy, 20, 20);
                 }
                 else{
