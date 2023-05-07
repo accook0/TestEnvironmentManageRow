@@ -24,10 +24,22 @@ public class Rower {
         side = "Coxswain";
     }
 
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+
+    public void setSide(String side)
+    {
+        this.side = side;
+    }
+
     public void setClassYear(int classYearIn)
     {
         classYear = classYearIn;
     }
+
+    
 
     public int getClassYear()
     {

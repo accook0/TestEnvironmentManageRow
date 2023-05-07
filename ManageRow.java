@@ -4,7 +4,8 @@ import java.text.NumberFormat;
 import java.util.Optional;
 
 import javax.swing.plaf.metal.MetalCheckBoxIcon;
-
+import javafx.event.EventHandler;
+import javafx.event.ActionEvent;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -19,6 +20,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Border;
@@ -33,6 +35,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.image.Image;
@@ -61,6 +64,7 @@ import javafx.scene.SnapshotParameters;
 import javax.imageio.ImageIO;
 import javafx.scene.transform.Transform;
 import java.io.FileWriter;
+//import java.beans.EventHandler;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.List;
@@ -69,7 +73,7 @@ import javafx.stage.Window;
 
 
 public class ManageRow extends Application{
-    private static final int WIDTH = 800;
+    private static final int WIDTH = 820;
     private static final int HEIGHT = 600;
     private static final String[] POSITIONS = {"Port", "Starboard", "Both", "Coxswain"};
     private static final Integer[] BOATS = {1, 2, 4, 8};
@@ -220,7 +224,7 @@ public class ManageRow extends Application{
 
         Button saveAndQuit = new Button("Save and Quit");
         HBox saveQuit = new HBox(100);
-        saveQuit.getChildren().add(saveAndQuit);
+        //saveQuit.getChildren().add(saveAndQuit);
         saveQuit.setAlignment(Pos.TOP_RIGHT);
         saveAndQuit.setOnAction(e-> saveAndQuitHandler());
 
@@ -234,7 +238,7 @@ public class ManageRow extends Application{
         {
             boatsDropDown.setValue(currentBoat.getName());
         }
-        System.out.println(currentBoat);
+        //System.out.println(currentBoat);
         VBox selectBoat = new VBox(20);
         selectBoat.getChildren().addAll(boatsDropDown);
 
@@ -253,20 +257,24 @@ public class ManageRow extends Application{
 
         TableView<Rower> rosterTable = createCoxRowerRosterView();
 
-
+        HBox test = new HBox(10);
         //this is for the proof of consept
         //Boat b = new Boat(4, "Conte", 1);
         if(currentBoat != null){
-            HBox test = lineupsTable(currentBoat);
+            test = lineupsTable(currentBoat);
             lineupsPane.setBottom(test);
             String boatName = String.valueOf(boatsDropDown.getValue());
             GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
             Boat b =  Boat.getBoat(boatName, fleet);
             b.drawBoat(gc, -1);
         }
+        VBox rosterTableHolder = new VBox(10);
+        //rosterTableHolder.setPrefWidth(200);
+        rosterTableHolder.getChildren().addAll(rosterTable, saveAndQuit);
+        
 
-        lineupsPane.setRight(rosterTable);
-        lineupsPane.setBottom(saveQuit);
+        lineupsPane.setRight(rosterTableHolder);
+        lineupsPane.setBottom(test);
       
         lineupsTab.setContent(lineupsPane);
     }
@@ -321,7 +329,19 @@ public class ManageRow extends Application{
 
         Label coxNameLabel = new Label("Name");
         TextField coxNameField = new TextField();
+
         Button removeCoxButton = new Button("Remove");
+        removeRowerButton.setOnAction(e-> {
+            teamRoster.remove(rowerTable.getSelectionModel().getSelectedItem());
+            setRosterTab();
+            setLineupsTab();
+        });
+        removeCoxButton.setOnAction(e-> {
+            teamRoster.remove(coxTable.getSelectionModel().getSelectedItem());
+            setRosterTab();
+            setLineupsTab();
+        });
+    
         coxNameFields.getChildren().addAll(coxNameLabel, coxNameField, removeCoxButton);
 
         Label coxYearLabel = new Label("Year");
@@ -344,11 +364,24 @@ public class ManageRow extends Application{
 
         rosterTab.setContent(rosterPane);
 
+        addCoxButton.setOnAction(e-> {
+            if(coxNameField.getText().equals("")){System.out.println("You must enter a name to add a Coxswain");return;}
+            else if(yearDropDown.getValue() == null){System.out.println("You must select a class year to add a Coxswain");return;}
+            Rower temp = new Rower(coxNameField.getText(), Integer.parseInt(String.valueOf(yearDropDown.getValue())));
+            teamRoster.add(temp);
+            setRosterTab();
+            setLineupsTab();
+
+        });
         
         saveRowerButton.setOnAction(e-> {
+            if(rowerNameField2.getText().equals("")){System.out.println("You must enter a name to add a Rower"); return;}
+            else if(positionDropDown.getValue() == null){System.out.println("You must select a position to add a Rower"); return;}
+            else if(ergScore.getText().equals("")){System.out.println("You must enter an erg score to add a Rower"); return;}
+            else if(weightField.getText().equals("") || !isNumeric(weightField.getText())){System.out.println("You must enter a valid weight to add a Rower"); return;}
             Rower temp = new Rower(rowerNameField2.getText(), String.valueOf(positionDropDown.getValue()), ergScore.getText(), Double.valueOf(weightField.getText()));
             teamRoster.add(temp);
-            System.out.println(teamRoster.toString());
+            //System.out.println(teamRoster.toString());
 
             /* createRowerRosterView();
             createCoxRosterView(); */
@@ -356,6 +389,18 @@ public class ManageRow extends Application{
             setLineupsTab();
 
         }); //working here
+    }
+
+    private boolean isNumeric(String s)
+    {
+        for(char c : s.toCharArray())
+        {
+            if(!Character.isDigit(c) && c != '.')
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void setHandlers(){
@@ -405,7 +450,7 @@ public class ManageRow extends Application{
             {
                 seatLabel = new Label("Bow");
             }
-            else if(i == b.getLineup().length-2)
+            else if(i == b.getLineup().length-2 || b.getLineup().length == 2)
             {
                 seatLabel = new Label("Stroke");
             }
@@ -424,6 +469,11 @@ public class ManageRow extends Application{
             rowerLabel2.getItems().add("Empty");
             int seat2 = i;
             rowerLabel2.setOnAction((e) -> {
+                if(rowerLabel2.getSelectionModel().getSelectedItem().equals("Empty"))
+                {
+                    b.removeRowerinSeat(seat2);
+                    return;
+                }
                 for(Rower r2 : teamRoster)
                 {
                     if(r2.getName().equals(rowerLabel2.getSelectionModel().getSelectedItem()))
@@ -438,14 +488,17 @@ public class ManageRow extends Application{
 
             
             for(Rower r : teamRoster){
-                
-                if(i == b.getLineup().length-1 && r.getSide().equals("Coxswain")){
+                if(b.getLineup().length == 1 && !r.getSide().equals("Coxswain"))
+                {
                     rowerLabel2.getItems().add(r.getName());
                 }
-                else if((r.getSide().equals("Port") || r.getSide().equals("Both") ) && i % 2 == b.getRig()-1){
+                else if(i == b.getLineup().length-1 && r.getSide().equals("Coxswain")){
                     rowerLabel2.getItems().add(r.getName());
                 }
-                else if((r.getSide().equals("Starboard") || r.getSide().equals("Both") )&& i % 2 == b.getRig()){
+                else if((r.getSide().equals("Port") || r.getSide().equals("Both") ) && (i % 2 == b.getRig() + 1) && (i != b.getLineup().length-1 || b.getLineup().length < 4)){
+                    rowerLabel2.getItems().add(r.getName());
+                }
+                else if((r.getSide().equals("Starboard") || r.getSide().equals("Both") ) && (i % 2 == b.getRig()) && (i != b.getLineup().length-1 || b.getLineup().length < 4)){
                     rowerLabel2.getItems().add(r.getName());
                 }
             }
@@ -466,6 +519,7 @@ public class ManageRow extends Application{
         }
         return output;
     }
+    
 
     public TableView<Rower> createCoxRowerRosterView(){
         
@@ -474,19 +528,50 @@ public class ManageRow extends Application{
         roster_view.setItems(observable_roster);
 
         TableView<Rower> table = new TableView<Rower>();
+        table.setEditable(true);
         table.setItems(observable_roster);
 
         TableColumn<Rower, String> nameCol = new TableColumn<Rower, String>("Name");
         nameCol.setCellValueFactory(new PropertyValueFactory("name"));
         nameCol.setPrefWidth(100);
+        nameCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        nameCol.setOnEditCommit(
+            new EventHandler<CellEditEvent<Rower, String>>(){
+                @Override
+                public void handle(CellEditEvent<Rower, String> t) {
+                    ((Rower) t.getTableView().getItems().get(t.getTablePosition().getRow())).setName(t.getNewValue());
+                    setRosterTab();
+                }
+            }
+        );
         
         TableColumn<Rower, String> sideCol = new TableColumn<Rower, String>("Position");
         sideCol.setCellValueFactory(new PropertyValueFactory("side"));
         sideCol.setPrefWidth(100);
+        sideCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        sideCol.setOnEditCommit(
+            new EventHandler<CellEditEvent<Rower, String>>(){
+                @Override
+                public void handle(CellEditEvent<Rower, String> t) {
+                    ((Rower) t.getTableView().getItems().get(t.getTablePosition().getRow())).setSide(t.getNewValue());
+                    setRosterTab();
+                }
+            }
+        );
         
         TableColumn<Rower, String> ergCol = new TableColumn<Rower, String>("2k");
         ergCol.setCellValueFactory(new PropertyValueFactory("ergScore"));
         ergCol.setPrefWidth(100);
+        ergCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        ergCol.setOnEditCommit(
+            new EventHandler<CellEditEvent<Rower, String>>(){
+                @Override
+                public void handle(CellEditEvent<Rower, String> t) {
+                    ((Rower) t.getTableView().getItems().get(t.getTablePosition().getRow())).setErgScore(t.getNewValue());
+                    setRosterTab();
+                }
+            }
+        );
 
 
         table.getColumns().setAll(nameCol, sideCol, ergCol);
@@ -502,24 +587,55 @@ public class ManageRow extends Application{
                 rowersOnly.add(r);
             }
         }
-        System.out.println(rowersOnly);
+        //System.out.println(rowersOnly);
         ObservableList<Rower> observable_roster = FXCollections.observableArrayList(rowersOnly);
         ListView<Rower> roster_view = new ListView<Rower>();
         roster_view.setItems(observable_roster);
         TableView<Rower> table = new TableView<Rower>();
         table.setItems(observable_roster);
+        table.setEditable(true);
 
         TableColumn<Rower, String> nameCol = new TableColumn<Rower, String>("Name");
         nameCol.setCellValueFactory(new PropertyValueFactory("name"));
         nameCol.setPrefWidth(100);
+        nameCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        nameCol.setOnEditCommit(
+            new EventHandler<CellEditEvent<Rower, String>>(){
+                @Override
+                public void handle(CellEditEvent<Rower, String> t) {
+                    ((Rower) t.getTableView().getItems().get(t.getTablePosition().getRow())).setName(t.getNewValue());
+                    setLineupsTab();
+                }
+            }
+        );
 
         TableColumn<Rower, String> sideCol = new TableColumn<Rower, String>("Position");
         sideCol.setCellValueFactory(new PropertyValueFactory("side"));
         sideCol.setPrefWidth(100);
+        sideCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        sideCol.setOnEditCommit(
+            new EventHandler<CellEditEvent<Rower, String>>(){
+                @Override
+                public void handle(CellEditEvent<Rower, String> t) {
+                    ((Rower) t.getTableView().getItems().get(t.getTablePosition().getRow())).setSide(t.getNewValue());
+                    setLineupsTab();
+                }
+            }
+        );
         
         TableColumn<Rower, String> ergCol = new TableColumn<Rower, String>("2k");
         ergCol.setCellValueFactory(new PropertyValueFactory("ergScore"));
         ergCol.setPrefWidth(100);
+        ergCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        ergCol.setOnEditCommit(
+            new EventHandler<CellEditEvent<Rower, String>>(){
+                @Override
+                public void handle(CellEditEvent<Rower, String> t) {
+                    ((Rower) t.getTableView().getItems().get(t.getTablePosition().getRow())).setErgScore(t.getNewValue());
+                    setLineupsTab();
+                }
+            }
+        );
         
         TableColumn<Rower, Double> weightCol = new TableColumn<Rower, Double>("Weight");
         weightCol.setCellValueFactory(new PropertyValueFactory("weight"));
@@ -545,15 +661,27 @@ public class ManageRow extends Application{
         roster_view.setItems(observable_roster);
         
         TableView<Rower> table = new TableView<Rower>();
+        table.setEditable(true);
         table.setItems(observable_roster);
         
         TableColumn<Rower, String> nameCol = new TableColumn<Rower, String>("Name");
         nameCol.setCellValueFactory(new PropertyValueFactory("name"));
         nameCol.setPrefWidth(150);
+        nameCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        nameCol.setOnEditCommit(
+            new EventHandler<CellEditEvent<Rower, String>>(){
+                @Override
+                public void handle(CellEditEvent<Rower, String> t) {
+                    ((Rower) t.getTableView().getItems().get(t.getTablePosition().getRow())).setName(t.getNewValue());
+                    setLineupsTab();
+                }
+            }
+        );
 
         TableColumn<Rower, String> classCol = new TableColumn<Rower, String>("Year");
         classCol.setCellValueFactory(new PropertyValueFactory("classYear"));
         classCol.setPrefWidth(150);
+        
         
         table.getColumns().setAll(nameCol, classCol);
         
@@ -775,7 +903,7 @@ public class ManageRow extends Application{
             String line;
             Rower data;
             while ((line = br.readLine()) != null) {
-                System.out.println(line);
+                //System.out.println(line);
                 String[] values = line.split("\\|");
                 //System.out.println(values[0]);
                 if(values[1].equals("Coxswain")){
@@ -809,7 +937,7 @@ public class ManageRow extends Application{
             for (Boat line : data) {
                 csvWriter.append(line.getName());
                 csvWriter.append("|");
-                csvWriter.append(String.valueOf(line.getSize()));
+                csvWriter.append(String.valueOf(line.getSizeForWriting()));
                 csvWriter.append("|");
                 csvWriter.append(String.valueOf(line.getRig()));
                 csvWriter.append("\n");
@@ -832,7 +960,7 @@ public class ManageRow extends Application{
             try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
                 String line;
                 while ((line = br.readLine()) != null) {
-                    System.out.println(line);
+                    //System.out.println(line);
                     String[] values = line.split("\\|");
                     //System.out.println(values[0]);
                     Boat data = new Boat(Integer.valueOf(values[1]), values[0], Integer.valueOf(values[2])); // assuming the CSV has three columns

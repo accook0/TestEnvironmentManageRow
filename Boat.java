@@ -46,6 +46,18 @@ public class Boat
         return size;
     }
 
+    public int getSizeForWriting()
+    {
+        if(size > 3)
+        {
+            return size-1;
+        }
+        else
+        {
+            return size;
+        }
+    }
+
     public String getName()
     {
         return name;
@@ -53,7 +65,7 @@ public class Boat
 
     public boolean addRower(Rower r, int seatNum)
     {
-        if(seatNum > size || lineup[seatNum-1] != null)
+        if(seatNum > size)
         {
             return false;
         }
@@ -63,11 +75,11 @@ public class Boat
 
     public boolean removeRowerinSeat(int seatNum)
     {
-        if(seatNum > size || lineup[seatNum-1] == null)
+        if(seatNum > size || lineup[seatNum] == null)
         {
             return false;
         }
-        lineup[seatNum-1] = null;
+        lineup[seatNum] = null;
         return true;
     }
 
