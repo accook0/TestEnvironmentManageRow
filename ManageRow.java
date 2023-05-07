@@ -133,7 +133,7 @@ public class ManageRow extends Application{
         TabPane tabPane = new TabPane();
         boatsTab.setText("Boats");
         boatsTab.setClosable(false);
-        Canvas c = new Canvas();
+        //Canvas c = new Canvas();
         setBoatTab();
 
 
@@ -245,15 +245,23 @@ public class ManageRow extends Application{
         //make all canvas things
         BorderPane lineupsPane = new BorderPane();
         Pane wrapperPane = new Pane();
-        lineupsPane.setCenter(wrapperPane);
+        wrapperPane.setPrefWidth(400);
+        wrapperPane.setPrefHeight(400);
 
         //bind the canvas
         wrapperPane.getChildren().addAll(lineupsCanvas);
         lineupsCanvas.widthProperty().bind(wrapperPane.widthProperty());
         lineupsCanvas.heightProperty().bind(wrapperPane.heightProperty());
 
+        // Boat b = new Boat(8, "testdraw", 1);
+        // GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
+        // gc.clearRect(0, 0, lineupsCanvas.getWidth(), lineupsCanvas.getHeight());
+        // b.drawBoat(gc);
+
+
         lineupsPane.setPadding(new Insets(10));
         lineupsPane.setTop(selectBoat);
+        lineupsPane.setLeft(wrapperPane);
 
         TableView<Rower> rosterTable = createCoxRowerRosterView();
 
@@ -265,8 +273,9 @@ public class ManageRow extends Application{
             lineupsPane.setBottom(test);
             String boatName = String.valueOf(boatsDropDown.getValue());
             GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
+            gc.clearRect(0, 0, lineupsCanvas.getWidth(), lineupsCanvas.getHeight());
             Boat b =  Boat.getBoat(boatName, fleet);
-            b.drawBoat(gc, -1);
+            b.drawBoat(gc);
         }
         VBox rosterTableHolder = new VBox(10);
         //rosterTableHolder.setPrefWidth(200);
@@ -424,7 +433,7 @@ public class ManageRow extends Application{
     public void saveAndQuitHandler(){
         csvWriterRower(teamRoster);
         csvWriterBoat(fleet);
-        Scene scene = boatsDropDown.getScene();
+        Scene scene = boatImg.getScene();
         Window wn = scene.getWindow();
         wn.hide();
     }
@@ -743,7 +752,7 @@ public class ManageRow extends Application{
 
                 if (toBoatAdded < boatAdded) {
                     GraphicsContext gc = c.getGraphicsContext2D();
-                    boats[toBoatAdded++].drawBoat(gc, -1);
+                    boats[toBoatAdded++].drawBoat(gc);
                     System.out.println("called " + boatAdded);
                 }
                 
@@ -829,7 +838,7 @@ public class ManageRow extends Application{
         GraphicsContext gc = boatImg.getGraphicsContext2D();
         gc.clearRect(0, 0, boatImg.getWidth(), boatImg.getHeight());
         
-        b.drawBoat(gc, -1);
+        b.drawBoat(gc);
         //saveImg(c, boatName);
 
         //popThumbnails(boatName);
@@ -849,6 +858,9 @@ public class ManageRow extends Application{
        lineupsTable = lineupsTable(b);
        currentBoat = b;
        setLineupsTab();
+       GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
+       gc.clearRect(0, 0, lineupsCanvas.getWidth(), lineupsCanvas.getHeight());
+       b.drawBoat(gc);
     }
 
     //********************** CSV Tools **********************/
@@ -866,10 +878,11 @@ public class ManageRow extends Application{
                     csvWriter.append("|");
                     csvWriter.append(line.getSide());
                     csvWriter.append("|");
-                    csvWriter.append(line.getErgScore());
-                    csvWriter.append("|");
                     csvWriter.append(String.valueOf(line.getWeight()));
                     csvWriter.append("|");
+                    csvWriter.append(String.valueOf(line.getErgScore()));
+                    csvWriter.append("\n");
+
                 }
                 else{
                     csvWriter.append(line.getName());
@@ -911,7 +924,7 @@ public class ManageRow extends Application{
 
                 }
                 else{
-                    data = new Rower(values[0], values[1], values[2], Double.valueOf(values[3])); // assuming the CSV has three columns
+                    data = new Rower(values[0], values[1], values[3], Double.valueOf(values[2])); // assuming the CSV has three columns
                 }
                 //name, size, rig
                 //System.out.println(data);
