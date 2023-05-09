@@ -67,6 +67,8 @@
 
 
 }
+
+
 .tab-label:selected{
     -fx-text-fill: white;
 }

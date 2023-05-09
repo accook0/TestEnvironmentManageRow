@@ -72,7 +72,7 @@ import javafx.stage.Window;
 
 
 
-public class ManageRow extends Application{
+public class ManageRow3 extends Application{
     private static final int WIDTH = 820;
     private static final int HEIGHT = 600;
     private static final String[] POSITIONS = {"Port", "Starboard", "Both", "Coxswain"};
@@ -234,22 +234,30 @@ public class ManageRow extends Application{
             
         //     boatsDropDown.getItems().add(b.getName());
         // }
+        BorderPane lineupsPane = new BorderPane();
+        HBox test = new HBox(10);
         if(currentBoat != null)
         {
             boatsDropDown.setValue(currentBoat.getName());
+            test = lineupsTable(currentBoat);
+            lineupsPane.setBottom(test);
+            String boatName = String.valueOf(boatsDropDown.getValue());
+            GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
+            gc.clearRect(0, 0, lineupsCanvas.getWidth(), lineupsCanvas.getHeight());
+            Boat b =  Boat.getBoat(boatName, fleet);
+            b.drawBoat(gc);
         }
         //System.out.println(currentBoat);
         VBox selectBoat = new VBox(20);
         selectBoat.getChildren().addAll(boatsDropDown);
 
         //make all canvas things
-        BorderPane lineupsPane = new BorderPane();
         Pane wrapperPane = new Pane();
         wrapperPane.setPrefWidth(400);
         wrapperPane.setPrefHeight(400);
 
         //bind the canvas
-        wrapperPane.getChildren().add(lineupsCanvas);
+        wrapperPane.getChildren().addAll(lineupsCanvas);
         lineupsCanvas.widthProperty().bind(wrapperPane.widthProperty());
         lineupsCanvas.heightProperty().bind(wrapperPane.heightProperty());
 
@@ -265,31 +273,11 @@ public class ManageRow extends Application{
 
         TableView<Rower> rosterTable = createCoxRowerRosterView();
 
-        HBox test = new HBox(10);
         //this is for the proof of consept
         //Boat b = new Boat(4, "Conte", 1);
-        if(currentBoat != null){
-            test = lineupsTable(currentBoat);
-            lineupsPane.setBottom(test);
-
-            String boatName = String.valueOf(boatsDropDown.getValue());
-            GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
-            gc.clearRect(0, 0, lineupsCanvas.getWidth(), lineupsCanvas.getHeight());
-            Boat b =  Boat.getBoat(boatName, fleet);
-            b.drawBoat(gc, -1);
-
-        }
         VBox rosterTableHolder = new VBox(10);
         //rosterTableHolder.setPrefWidth(200);
-        Button pleaseWork = new Button("Draw Boat");
-        pleaseWork.setOnAction(e-> {
-            String boatName = String.valueOf(boatsDropDown.getValue());
-            GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
-            gc.clearRect(0, 0, lineupsCanvas.getWidth(), lineupsCanvas.getHeight());
-            Boat b =  Boat.getBoat(boatName, fleet);
-            b.drawBoat(gc, 1);
-        });
-        rosterTableHolder.getChildren().addAll(pleaseWork, rosterTable, saveAndQuit);
+        rosterTableHolder.getChildren().addAll(rosterTable, saveAndQuit);
         
 
         lineupsPane.setRight(rosterTableHolder);
@@ -514,7 +502,7 @@ public class ManageRow extends Application{
                 else if(i == b.getLineup().length-1 && r.getSide().equals("Coxswain")){
                     rowerLabel2.getItems().add(r.getName());
                 }
-                else if((r.getSide().equals("Port") || r.getSide().equals("Both") ) && (i % 2 == (b.getRig() + 1) % 2) && (i != b.getLineup().length-1 || b.getLineup().length < 4)){
+                else if((r.getSide().equals("Port") || r.getSide().equals("Both") ) && (i % 2 == b.getRig() + 1) && (i != b.getLineup().length-1 || b.getLineup().length < 4)){
                     rowerLabel2.getItems().add(r.getName());
                 }
                 else if((r.getSide().equals("Starboard") || r.getSide().equals("Both") ) && (i % 2 == b.getRig()) && (i != b.getLineup().length-1 || b.getLineup().length < 4)){
@@ -762,7 +750,7 @@ public class ManageRow extends Application{
 
                 if (toBoatAdded < boatAdded) {
                     GraphicsContext gc = c.getGraphicsContext2D();
-                    boats[toBoatAdded++].drawBoat(gc, .35);
+                    boats[toBoatAdded++].drawBoat(gc);
                     System.out.println("called " + boatAdded);
                 }
                 
@@ -848,7 +836,7 @@ public class ManageRow extends Application{
         GraphicsContext gc = boatImg.getGraphicsContext2D();
         gc.clearRect(0, 0, boatImg.getWidth(), boatImg.getHeight());
         
-        b.drawBoat(gc, 1);
+        b.drawBoat(gc);
         //saveImg(c, boatName);
 
         //popThumbnails(boatName);

@@ -1,3 +1,4 @@
+``` 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.text.NumberFormat;
@@ -72,7 +73,7 @@ import javafx.stage.Window;
 
 
 
-public class ManageRow extends Application{
+public class ManageRow3 extends Application{
     private static final int WIDTH = 820;
     private static final int HEIGHT = 600;
     private static final String[] POSITIONS = {"Port", "Starboard", "Both", "Coxswain"};
@@ -110,6 +111,8 @@ public class ManageRow extends Application{
     private ComboBox coxs = new ComboBox();
     
     private TableView<Rower> table;
+    TableView<Rower> rowerTable = new TableView<Rower>();
+    TableView<Rower> coxTable = new TableView<Rower>();
 
     private TextArea displayArea =  new TextArea();
 
@@ -129,6 +132,9 @@ public class ManageRow extends Application{
         teamRoster = csvReaderRower("roster.csv");
         fleet = readBoatCsv("boats.csv"); //returns the csv
         buildBoatSelection();
+        rowerTable = createRowerRosterView();
+        coxTable = createCoxRosterView();
+
         //create tabs
         TabPane tabPane = new TabPane();
         boatsTab.setText("Boats");
@@ -249,7 +255,7 @@ public class ManageRow extends Application{
         wrapperPane.setPrefHeight(400);
 
         //bind the canvas
-        wrapperPane.getChildren().add(lineupsCanvas);
+        wrapperPane.getChildren().addAll(lineupsCanvas);
         lineupsCanvas.widthProperty().bind(wrapperPane.widthProperty());
         lineupsCanvas.heightProperty().bind(wrapperPane.heightProperty());
 
@@ -271,25 +277,15 @@ public class ManageRow extends Application{
         if(currentBoat != null){
             test = lineupsTable(currentBoat);
             lineupsPane.setBottom(test);
-
             String boatName = String.valueOf(boatsDropDown.getValue());
             GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
             gc.clearRect(0, 0, lineupsCanvas.getWidth(), lineupsCanvas.getHeight());
             Boat b =  Boat.getBoat(boatName, fleet);
-            b.drawBoat(gc, -1);
-
+            b.drawBoat(gc);
         }
         VBox rosterTableHolder = new VBox(10);
         //rosterTableHolder.setPrefWidth(200);
-        Button pleaseWork = new Button("Draw Boat");
-        pleaseWork.setOnAction(e-> {
-            String boatName = String.valueOf(boatsDropDown.getValue());
-            GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
-            gc.clearRect(0, 0, lineupsCanvas.getWidth(), lineupsCanvas.getHeight());
-            Boat b =  Boat.getBoat(boatName, fleet);
-            b.drawBoat(gc, 1);
-        });
-        rosterTableHolder.getChildren().addAll(pleaseWork, rosterTable, saveAndQuit);
+        rosterTableHolder.getChildren().addAll(rosterTable, saveAndQuit);
         
 
         lineupsPane.setRight(rosterTableHolder);
@@ -336,8 +332,7 @@ public class ManageRow extends Application{
 
         rowers.getChildren().addAll(nameAndWeight, positionAndRemove, ergScoreAndSave);
         
-        TableView<Rower> rowerTable = createRowerRosterView();
-        TableView<Rower> coxTable = createCoxRosterView();
+       
 
         VBox rowerTableBox = new VBox(20);
         VBox coxTableBox = new VBox(20);
@@ -355,7 +350,7 @@ public class ManageRow extends Application{
             setRosterTab();
             setLineupsTab();
         });
-        removeCoxButton.setOnAction(e-> {
+        removeCoxButton.setOnAction(e-> { //here
             teamRoster.remove(coxTable.getSelectionModel().getSelectedItem());
             setRosterTab();
             setLineupsTab();
@@ -383,15 +378,7 @@ public class ManageRow extends Application{
 
         rosterTab.setContent(rosterPane);
 
-        addCoxButton.setOnAction(e-> {
-            if(coxNameField.getText().equals("")){System.out.println("You must enter a name to add a Coxswain");return;}
-            else if(yearDropDown.getValue() == null){System.out.println("You must select a class year to add a Coxswain");return;}
-            Rower temp = new Rower(coxNameField.getText(), Integer.parseInt(String.valueOf(yearDropDown.getValue())));
-            teamRoster.add(temp);
-            setRosterTab();
-            setLineupsTab();
-
-        });
+        addCoxButton.setOnAction(e-> addCoxButtonHandler(coxNameField, yearDropDown));
         
         saveRowerButton.setOnAction(e-> {
             if(rowerNameField2.getText().equals("")){System.out.println("You must enter a name to add a Rower"); return;}
@@ -440,6 +427,15 @@ public class ManageRow extends Application{
     }
 
     //********************** Helpers **********************/
+    public void addCoxButtonHandler(TextField coxNameField, ComboBox yearDropDown){
+        if(coxNameField.getText().equals("")){System.out.println("You must enter a name to add a Coxswain");return;}
+        else if(yearDropDown.getValue() == null){System.out.println("You must select a class year to add a Coxswain");return;}
+        Rower temp = new Rower(coxNameField.getText(), Integer.parseInt(String.valueOf(yearDropDown.getValue())));
+        teamRoster.add(temp);
+        setRosterTab();
+        setLineupsTab();
+    }
+
     public void saveAndQuitHandler(){
         csvWriterRower(teamRoster);
         csvWriterBoat(fleet);
@@ -514,7 +510,7 @@ public class ManageRow extends Application{
                 else if(i == b.getLineup().length-1 && r.getSide().equals("Coxswain")){
                     rowerLabel2.getItems().add(r.getName());
                 }
-                else if((r.getSide().equals("Port") || r.getSide().equals("Both") ) && (i % 2 == (b.getRig() + 1) % 2) && (i != b.getLineup().length-1 || b.getLineup().length < 4)){
+                else if((r.getSide().equals("Port") || r.getSide().equals("Both") ) && (i % 2 == b.getRig() + 1) && (i != b.getLineup().length-1 || b.getLineup().length < 4)){
                     rowerLabel2.getItems().add(r.getName());
                 }
                 else if((r.getSide().equals("Starboard") || r.getSide().equals("Both") ) && (i % 2 == b.getRig()) && (i != b.getLineup().length-1 || b.getLineup().length < 4)){
@@ -662,7 +658,7 @@ public class ManageRow extends Application{
                 
         table.getColumns().setAll(nameCol, sideCol, ergCol, weightCol);
         
-        csvWriterRower(rowersOnly);
+        //csvWriterRower(rowersOnly);
         return table;
     }
 
@@ -762,7 +758,7 @@ public class ManageRow extends Application{
 
                 if (toBoatAdded < boatAdded) {
                     GraphicsContext gc = c.getGraphicsContext2D();
-                    boats[toBoatAdded++].drawBoat(gc, .35);
+                    boats[toBoatAdded++].drawBoat(gc);
                     System.out.println("called " + boatAdded);
                 }
                 
@@ -848,7 +844,7 @@ public class ManageRow extends Application{
         GraphicsContext gc = boatImg.getGraphicsContext2D();
         gc.clearRect(0, 0, boatImg.getWidth(), boatImg.getHeight());
         
-        b.drawBoat(gc, 1);
+        b.drawBoat(gc);
         //saveImg(c, boatName);
 
         //popThumbnails(boatName);
@@ -868,9 +864,9 @@ public class ManageRow extends Application{
        lineupsTable = lineupsTable(b);
        currentBoat = b;
        setLineupsTab();
-    //    GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
-    //    gc.clearRect(0, 0, lineupsCanvas.getWidth(), lineupsCanvas.getHeight());
-    //    b.drawBoat(gc);
+       GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
+       gc.clearRect(0, 0, lineupsCanvas.getWidth(), lineupsCanvas.getHeight());
+       b.drawBoat(gc);
     }
 
     //********************** CSV Tools **********************/
@@ -997,3 +993,6 @@ public class ManageRow extends Application{
             return dataList;
         }
     }
+
+
+```

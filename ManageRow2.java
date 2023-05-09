@@ -68,32 +68,29 @@ import java.util.List;
 
 
 public class ManageRow2 extends Application{
-    private static final int WIDTH = 800;
+    private static final int WIDTH = 1200;
     private static final int HEIGHT = 600;
     private static final String[] POSITIONS = {"Port", "Starboard", "Both", "Coxswain"};
     private static final Integer[] BOATS = {1, 2, 4, 8};
     private static final String[] RIGS = {"Port", "Starboard"};
 
-    private static int boatAdded = 0;
-    private Boat[] boats = new Boat[14];
+ 
 
     private Button newBoatButton = new Button("New Boat");
-    private Button saveAndQuit = new Button("Save and Quit");
-
 
     private TextField boatNameField =  new TextField();
     private TextField boatSizeField =  new TextField();
     private TextField rowerNameField =  new TextField();
     private TextField rowerSideField =  new TextField();
     
-    private Canvas boatImg = new Canvas();
+    private Canvas boatImg; // = new Canvas();
     private Canvas lineupsCanvas = new Canvas();
 
 
     private BorderPane root = new BorderPane();
     private FlowPane boatInfo = new FlowPane();
     private GridPane boatThumbnails = new GridPane();
-    private ScrollPane allThumbnails = new ScrollPane();
+   // private ScrollPane allThumbnails = new ScrollPane();
 
     private HBox lineupsTable = new HBox(100);
 
@@ -109,18 +106,24 @@ public class ManageRow2 extends Application{
 
     private TextArea displayArea =  new TextArea();
 
-    private static ArrayList<Boat> fleet = new ArrayList<Boat>();
-    private static ArrayList<Rower> teamRoster = new ArrayList<Rower>();
+    private ArrayList<Boat> fleet = new ArrayList<Boat>();
+    private ArrayList<Rower> teamRoster = new ArrayList<Rower>();
+
+ //   private static int boatAdded = 0;
+    //private Boat[] boats = new Boat[30];
+    private Canvas[] canvases = new Canvas[16];
 
     private Tab boatsTab = new Tab();
     private Tab lineupsTab = new Tab();
     private Tab rosterTab = new Tab();
     private Tab learnMore = new Tab();
 
-
     public void start(Stage stage){
         //create elements for tabs
         //createRowerCombos("roster.csv");
+
+      
+
         teamRoster = csvReaderRower("roster.csv");
         //create tabs
         TabPane tabPane = new TabPane();
@@ -129,7 +132,7 @@ public class ManageRow2 extends Application{
       
       
         // Canvas c = new Canvas();
-        setBoatTab(boatsTab);
+        setBoatTab();
 
 
 
@@ -149,7 +152,7 @@ public class ManageRow2 extends Application{
 
         tabPane.getTabs().addAll(boatsTab, lineupsTab, rosterTab, learnMore);
         //create all handlers
-        setHandlers(stage);//c);
+        setHandlers();//c);
 
         //create the scene
         Scene scene = new Scene(tabPane);
@@ -162,19 +165,32 @@ public class ManageRow2 extends Application{
         scene.getStylesheets().add("style.css");
         stage.show(); 
 
+ /* 
+        int last = fleet.size()-1;
+        GraphicsContext smallGC = canvases[last].getGraphicsContext2D();
+        fleet.get(last).drawBoat(smallGC, 2, true);
+       */
+ 
+        for(int i = 0; i < 8; i ++){
+            for(int j = 0; j < 2; j ++){
+                int index = i*2+j;
 
+                if (index < fleet.size()) {
+                    GraphicsContext gc = canvases[index].getGraphicsContext2D();
+                    fleet.get(index).drawBoat(gc, 2, true);
+                    System.out.println("redraw small canvas " + index + "/" + fleet.size());
+                }
+            }
+        }
     }
 
     
 
-    public void setBoatTab(Tab boats){
+    public void setBoatTab(){
         HBox boatInfo = new HBox(50);
         VBox name = new VBox(10);
         VBox size = new VBox(10);
         VBox rig = new VBox(10);
-        HBox saveQuit = new HBox(100);
-        saveQuit.getChildren().add(saveAndQuit);
-        saveQuit.setAlignment(Pos.BOTTOM_RIGHT);
 
         Label boatNameLabel = new Label("Boat Name:    ");
         Label boatSizeLabel = new Label("Boat Size:   ");
@@ -186,39 +202,63 @@ public class ManageRow2 extends Application{
         boatInfo.getChildren().addAll(name, size, rig, newBoatButton);
 
         BorderPane page = new BorderPane();
-        Pane wrapperPane = new Pane();
-        
+        page.setPadding(new Insets(10));
+        page.setTop(boatInfo);
+
+        fleet = readBoatCsv("boats.csv"); //returns the csv
+
+        GridPane wrapperPane = new GridPane();
+        wrapperPane.setGridLinesVisible(true);
+
+        //wrapperPane.setHgap(20);
         page.setCenter(wrapperPane);
-        
+
+        Pane p = new Pane();
+        boatImg = new Canvas(wrapperPane.getWidth()/2, wrapperPane.getHeight());
+        p.getChildren().add(boatImg);
+        wrapperPane.setStyle("-fx-background-color: lightyellow");
+      //  wrapperPane.add(boatImg,0, 0);
         // Put canvas in the center of the window
-        wrapperPane.getChildren().add(boatImg);
+     //   wrapperPane.getChildren().add(boatImg);
+        wrapperPane.add(p, 0, 0);
+
+        wrapperPane.add(boatThumbnails, 1, 0);
+
+        boatThumbnails.setGridLinesVisible(true);
         // Bind the width/height property to the wrapper Pane
         boatImg.widthProperty().bind(wrapperPane.widthProperty());
         boatImg.heightProperty().bind(wrapperPane.heightProperty());
 
-        page.setPadding(new Insets(10));
-        page.setTop(boatInfo);
-       // try {
-            popThumbnails();
-     //   } catch (FileNotFoundException e) {
-            // handle the exception here
-       //     System.out.println("this didnt work");
-       //     e.printStackTrace();
-      //  }
+ 
 
-        allThumbnails.setContent(boatThumbnails);
-        page.setRight(allThumbnails);
-        page.setBottom(saveQuit);
-        
-        boats.setContent(page);
+        // may be drawn too early
+        for(int i = 0; i < 8; i ++){
+            for(int j = 0; j < 2; j ++){
+                int index = i*2+j;
+ 
+                canvases[index] = new Canvas(100, 100);
+
+             //   if (index < fleet.size()) {
+             //       GraphicsContext gc = canvases[index].getGraphicsContext2D();
+                  //  fleet.get(index).drawBoat(gc, -1, true);
+             //       System.out.println("redraw small canvas " + index + "/" + fleet.size());
+              //  }
+                boatThumbnails.add(canvases[index], j, i);
+
+            }
+        }
+
+
+       // page.setRight(new Label("right"));//boatThumbnails);
+
+        boatThumbnails.setStyle("-fx-background-color: #336699;");
+        boatsTab.setContent(page);
+      //  popThumbnails();
+
     }
 
     public void setLineupsTab(Tab lineups){
         boatsDropDown.setPrefWidth(100);
-        fleet = readBoatCsv("boats.csv"); //returns the csv
-        HBox saveQuit = new HBox(100);
-        saveQuit.getChildren().add(saveAndQuit);
-        saveQuit.setAlignment(Pos.BOTTOM_RIGHT);
         //System.out.println(fleet.toString());
         for(Boat b : fleet){ //read the csv here, create combo box
             boatsDropDown.getItems().add(b.getName());
@@ -246,21 +286,18 @@ public class ManageRow2 extends Application{
         //this is for the proof of consept
         Boat b = new Boat(4, "Conte", 1);
         HBox test = lineupsTable(b);
-        HBox bottom = new HBox(10, test, saveQuit);
-        lineupsPane.setBottom(bottom);
+        lineupsPane.setBottom(test);
         lineupsPane.setRight(rosterTable);
 
       
         lineups.setContent(lineupsPane);
+
     }
 
     private void setRosterTab(Tab rosterTab){
         BorderPane rosterPane = new BorderPane();
         VBox rowers = new VBox(10);
         rosterPane.setPadding(new Insets(10));
-        HBox saveQuit = new HBox(100);
-        saveQuit.getChildren().add(saveAndQuit);
-        saveQuit.setAlignment(Pos.BOTTOM_RIGHT);
 
         HBox nameAndWeight = new HBox(10);
         Label rowerName = new Label("Name");
@@ -319,7 +356,6 @@ public class ManageRow2 extends Application{
 
         coxTableBox.getChildren().addAll(coxTable, coxFields);
         rosterPane.setRight(coxTableBox);
-        rosterPane.setBottom(saveQuit);
 
         rosterTab.setContent(rosterPane);
 
@@ -338,7 +374,6 @@ public class ManageRow2 extends Application{
     }
 
     public void setLearnMoreTab(Tab learnMore){
-  
         Image gifImage = new Image("LearnMore.gif");
         
         // Create an ImageView object to display the GIF image
@@ -346,23 +381,21 @@ public class ManageRow2 extends Application{
         
         // Create a Pane to hold the ImageView
         ScrollPane pane = new ScrollPane(gifImageView);
-
         learnMore.setContent(pane);
     }
-    private void setHandlers(Stage stage) { //Canvas c){
-        newBoatButton.setOnAction(e-> addBoat()); //c));
+
+
+    private void setHandlers() { //Canvas c){
+        newBoatButton.setOnAction(e-> 
+        {
+            addBoat();
+        }); //c));
         boatsDropDown.setOnAction(e -> selectBoat()); //make this
-        saveAndQuit.setOnAction(e-> saveAndQuitHandler(stage));
         
     }
 
     //********************** Helpers **********************/
 
-    public void saveAndQuitHandler(Stage stage){
-        csvWriterRower(teamRoster);
-        csvWriterBoat(fleet);
-        stage.close();
-    }
     public HBox lineupsTable(Boat b)
     {
         HBox output = new HBox(0);
@@ -487,7 +520,7 @@ public class ManageRow2 extends Application{
                 
         table.getColumns().setAll(nameCol, sideCol, ergCol, weightCol);
         
-        //csvWriterRower(rowersOnly);
+        csvWriterRower(rowersOnly);
         return table;
     }
 
@@ -559,29 +592,26 @@ public class ManageRow2 extends Application{
         }
     }
 
+    /* 
     public void popThumbnails() { //throws FileNotFoundException{
 
-        int toBoatAdded = 0;
-        int debug = 0;
-     //   while (toBoatAdded == boatAdded) {
+        System.out.println("in pop");
+     //   int toBoatAdded = 0;
 
-    //    }
 
         for(int i = 0; i < 2; i ++){
             for(int j = 0; j < 8; j ++){
-       
-              //  Button b = new Button("Boat Here" + debug++);
-                Canvas c = new Canvas(100, 100);
+                int index = i*8+j;
+                 System.out.println("Boat Here " + index);
 
-                if (toBoatAdded < boatAdded) {
-                    GraphicsContext gc = c.getGraphicsContext2D();
-                    boats[toBoatAdded++].drawBoat(gc, -1);
-                    System.out.println("called " + boatAdded);
+                if (index < fleet.size()) {
+                    GraphicsContext gc = canvases[index].getGraphicsContext2D();
+                    fleet.get(index).drawBoat(gc, 2);
+                    System.out.println("redraw small canvas");
                 }
-                
 
               //  b.setPadding(new Insets(10));
-                boatThumbnails.add(c, i, j);
+               // boatThumbnails.add(c, i, j);
  
              //   Image img = new Image(new FileInputStream("testimg4.png"), 100, 100, true, false);
              //   ImageView imgIcon = new ImageView(img);
@@ -590,6 +620,7 @@ public class ManageRow2 extends Application{
             }
         }
     }
+    */
 
     // public HBox lineupsTable(Boat b){
     //     HBox lineup = new HBox(10);
@@ -639,39 +670,58 @@ public class ManageRow2 extends Application{
 
 
         Boat b = new Boat(Integer.valueOf(String.valueOf((boatSizes.getValue()))), boatNameField.getText(), rigin);
-
-
-        boats[boatAdded++] = b;
+       // boats[boatAdded++] = b;
 
         fleet.add(b);
-        //csvWriterBoat(fleet); //ideally this would only do new ones but we dont have a save button
+
+        csvWriterBoat(fleet); //ideally this would only do new ones but we dont have a save button
         boatsDropDown.getItems().add(b.getName());
         //draw the boat
         GraphicsContext gc = boatImg.getGraphicsContext2D();
         gc.clearRect(0, 0, boatImg.getWidth(), boatImg.getHeight());
      
      // Elodie
-        b.drawBoat(gc, -1);
+        b.drawBoat(gc, 1, false);
+
+        System.out.println("drawing big version?");
        
-//     saveImg(c, boatName);
-
-        //popThumbnails(boatName);
-
+        // works by itself, but tempting to fix all of them
+           int last = fleet.size()-1;
+            GraphicsContext smallGC = canvases[last].getGraphicsContext2D();
+            fleet.get(last).drawBoat(smallGC, 2, true);
+            System.out.println("drawing new small canvas boat " + last + "/" + fleet.size());
+      
 
         //reset the page
         boatSizeField.setText("");
         boatNameField.setText("");
 
-        popThumbnails();
+        //popThumbnails();
 
+
+        // fixing all the thumbnails
+     /*  for(int i = 0; i < 8; i ++){
+            for(int j = 0; j < 2; j ++){
+                int index = i*2+j;
+            //    canvases[index] = new Canvas(100, 100);
+                if (index < fleet.size()) {
+                    GraphicsContext smallGC = canvases[index].getGraphicsContext2D();
+                    fleet.get(index).drawBoat(smallGC, -1, true);
+                    System.out.println("redraw small canvas " + index + "/" + fleet.size());
+                }
+
+            }
+        }
+        */
     }
+
     public void selectBoat(){ //only draws boats that have been pre drawn
        String boatName = String.valueOf(boatsDropDown.getValue());
        GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
        Boat b =  Boat.getBoat(boatName, fleet);
 
        // Elodie
-        b.drawBoat(gc, -1);
+        b.drawBoat(gc, 1, false);
         lineupsTable = lineupsTable(b);
     }
 
@@ -779,7 +829,7 @@ public class ManageRow2 extends Application{
         }
     }
 
-        public static ArrayList<Boat> readBoatCsv(String filePath) {
+        public  ArrayList<Boat> readBoatCsv(String filePath) {
             ArrayList<Boat> dataList = new ArrayList<Boat>();
             try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
                 String line;
@@ -790,7 +840,12 @@ public class ManageRow2 extends Application{
                     Boat data = new Boat(Integer.valueOf(values[1]), values[0], Integer.valueOf(values[2])); // assuming the CSV has three columns
                     //name, size, rig
                     //System.out.println(data);
+
                     dataList.add(data);
+                //    boats[boatAdded++] = dataList.get(dataList.size()-1);
+ 
+                //    System.out.println("total boat " + boatAdded); 
+
                 }
             } catch (IOException e) {
                 e.printStackTrace();
