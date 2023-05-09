@@ -271,15 +271,19 @@ public class ManageRow extends Application{
         if(currentBoat != null){
             test = lineupsTable(currentBoat);
             lineupsPane.setBottom(test);
+            
+        }
+        VBox rosterTableHolder = new VBox(10);
+        //rosterTableHolder.setPrefWidth(200);
+        Button pleaseWork = new Button("Draw Boat");
+        pleaseWork.setOnAction(e-> {
             String boatName = String.valueOf(boatsDropDown.getValue());
             GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
             gc.clearRect(0, 0, lineupsCanvas.getWidth(), lineupsCanvas.getHeight());
             Boat b =  Boat.getBoat(boatName, fleet);
             b.drawBoat(gc);
-        }
-        VBox rosterTableHolder = new VBox(10);
-        //rosterTableHolder.setPrefWidth(200);
-        rosterTableHolder.getChildren().addAll(rosterTable, saveAndQuit);
+        });
+        rosterTableHolder.getChildren().addAll(pleaseWork, rosterTable, saveAndQuit);
         
 
         lineupsPane.setRight(rosterTableHolder);
@@ -858,9 +862,9 @@ public class ManageRow extends Application{
        lineupsTable = lineupsTable(b);
        currentBoat = b;
        setLineupsTab();
-       GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
-       gc.clearRect(0, 0, lineupsCanvas.getWidth(), lineupsCanvas.getHeight());
-       b.drawBoat(gc);
+    //    GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
+    //    gc.clearRect(0, 0, lineupsCanvas.getWidth(), lineupsCanvas.getHeight());
+    //    b.drawBoat(gc);
     }
 
     //********************** CSV Tools **********************/

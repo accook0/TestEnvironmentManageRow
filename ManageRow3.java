@@ -13,7 +13,6 @@ import javafx.geometry.Pos;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.StrokeLineJoin;
 import javafx.scene.text.Font;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -111,7 +110,6 @@ public class ManageRow3 extends Application{
     private ComboBox coxs = new ComboBox();
     
     private TableView<Rower> table;
-    private TableView<Rower> rosterTable = new TableView<Rower>();
 
     private TextArea displayArea =  new TextArea();
 
@@ -143,7 +141,6 @@ public class ManageRow3 extends Application{
         lineupsTab.setText("Lineups");
         lineupsTab.setClosable(false);
         setLineupsTab();
-
 
 
         rosterTab.setText("Roster");
@@ -237,19 +234,27 @@ public class ManageRow3 extends Application{
             
         //     boatsDropDown.getItems().add(b.getName());
         // }
+        BorderPane lineupsPane = new BorderPane();
+        HBox test = new HBox(10);
         if(currentBoat != null)
         {
             boatsDropDown.setValue(currentBoat.getName());
+            test = lineupsTable(currentBoat);
+            lineupsPane.setBottom(test);
+            String boatName = String.valueOf(boatsDropDown.getValue());
+            GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
+            gc.clearRect(0, 0, lineupsCanvas.getWidth(), lineupsCanvas.getHeight());
+            Boat b =  Boat.getBoat(boatName, fleet);
+            b.drawBoat(gc);
         }
         //System.out.println(currentBoat);
         VBox selectBoat = new VBox(20);
         selectBoat.getChildren().addAll(boatsDropDown);
 
         //make all canvas things
-        BorderPane lineupsPane = new BorderPane();
         Pane wrapperPane = new Pane();
-        wrapperPane.setPrefWidth(50);
-        wrapperPane.setPrefHeight(50);
+        wrapperPane.setPrefWidth(400);
+        wrapperPane.setPrefHeight(400);
 
         //bind the canvas
         wrapperPane.getChildren().addAll(lineupsCanvas);
@@ -264,33 +269,19 @@ public class ManageRow3 extends Application{
 
         lineupsPane.setPadding(new Insets(10));
         lineupsPane.setTop(selectBoat);
-        lineupsPane.setCenter(wrapperPane);
+        lineupsPane.setLeft(wrapperPane);
 
-        rosterTable = createCoxRowerRosterView();
-        // if(currentBoat != null){
-        //     lineupsTable = lineupsTable(currentBoat);
-        // }
+        TableView<Rower> rosterTable = createCoxRowerRosterView();
 
-        //HBox test = new HBox(10);
         //this is for the proof of consept
         //Boat b = new Boat(4, "Conte", 1);
-        if(currentBoat != null){
-            lineupsTable = lineupsTable(currentBoat);
-            //lineupsPane.setBottom(lineupsTable);
-            String boatName = String.valueOf(boatsDropDown.getValue());
-            GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
-            gc.clearRect(0, 0, lineupsCanvas.getWidth(), lineupsCanvas.getHeight());
-            Boat b =  Boat.getBoat(boatName, fleet);
-            b.drawBoat(gc);
-        }
-        lineupsPane.getChildren().addAll(new TextArea("it is populated"));
         VBox rosterTableHolder = new VBox(10);
         //rosterTableHolder.setPrefWidth(200);
         rosterTableHolder.getChildren().addAll(rosterTable, saveAndQuit);
         
 
         lineupsPane.setRight(rosterTableHolder);
-        lineupsPane.setBottom(lineupsTable);
+        lineupsPane.setBottom(test);
       
         lineupsTab.setContent(lineupsPane);
     }
@@ -350,18 +341,12 @@ public class ManageRow3 extends Application{
         removeRowerButton.setOnAction(e-> {
             teamRoster.remove(rowerTable.getSelectionModel().getSelectedItem());
             setRosterTab();
-            rosterTable = createCoxRowerRosterView();
-            if(currentBoat != null){
-                lineupsTable = lineupsTable(currentBoat);
-            }
-
+            setLineupsTab();
         });
         removeCoxButton.setOnAction(e-> {
             teamRoster.remove(coxTable.getSelectionModel().getSelectedItem());
             setRosterTab();
-            rosterTable = createCoxRowerRosterView();
-            lineupsTable = lineupsTable(currentBoat);
-
+            setLineupsTab();
         });
     
         coxNameFields.getChildren().addAll(coxNameLabel, coxNameField, removeCoxButton);
@@ -392,11 +377,7 @@ public class ManageRow3 extends Application{
             Rower temp = new Rower(coxNameField.getText(), Integer.parseInt(String.valueOf(yearDropDown.getValue())));
             teamRoster.add(temp);
             setRosterTab();
-            rosterTable = createCoxRowerRosterView();
-            if(currentBoat != null){
-                lineupsTable = lineupsTable(currentBoat);
-            }
-
+            setLineupsTab();
 
         });
         
@@ -412,12 +393,7 @@ public class ManageRow3 extends Application{
             /* createRowerRosterView();
             createCoxRosterView(); */
             setRosterTab();
-            rosterTable = createCoxRowerRosterView();
-            if(currentBoat != null){
-                lineupsTable = lineupsTable(currentBoat);
-            }
-
-
+            setLineupsTab();
 
         }); //working here
     }
@@ -469,7 +445,6 @@ public class ManageRow3 extends Application{
     public HBox lineupsTable(Boat b)
     {
         HBox output = new HBox(0);
-        System.out.println("In build linups table");
         for(int i = 0; i < b.getLineup().length; i++)
         {
             VBox seat = new VBox(0);
@@ -511,12 +486,7 @@ public class ManageRow3 extends Application{
                     if(r2.getName().equals(rowerLabel2.getSelectionModel().getSelectedItem()))
                     {
                         b.addRower(r2, seat2 + 1);
-                        rosterTable = createCoxRowerRosterView();
-                        // if(currentBoat != null){
-                        //     lineupsTable = lineupsTable(currentBoat);
-                        // }
-
-
+                        setLineupsTab();
                         break;
                     }
                 }
@@ -641,12 +611,7 @@ public class ManageRow3 extends Application{
                 @Override
                 public void handle(CellEditEvent<Rower, String> t) {
                     ((Rower) t.getTableView().getItems().get(t.getTablePosition().getRow())).setName(t.getNewValue());
-                    rosterTable = createCoxRowerRosterView();
-                if(currentBoat != null){
-                    lineupsTable = lineupsTable(currentBoat);
-                }
-
-
+                    setLineupsTab();
                 }
             }
         );
@@ -660,12 +625,7 @@ public class ManageRow3 extends Application{
                 @Override
                 public void handle(CellEditEvent<Rower, String> t) {
                     ((Rower) t.getTableView().getItems().get(t.getTablePosition().getRow())).setSide(t.getNewValue());
-                    rosterTable = createCoxRowerRosterView();
-                if(currentBoat != null){
-                    lineupsTable = lineupsTable(currentBoat);
-                }
-
-
+                    setLineupsTab();
                 }
             }
         );
@@ -679,12 +639,7 @@ public class ManageRow3 extends Application{
                 @Override
                 public void handle(CellEditEvent<Rower, String> t) {
                     ((Rower) t.getTableView().getItems().get(t.getTablePosition().getRow())).setErgScore(t.getNewValue());
-                    rosterTable = createCoxRowerRosterView();
-                if(currentBoat != null){
-                    lineupsTable = lineupsTable(currentBoat);
-                }
-                    
-
+                    setLineupsTab();
                 }
             }
         );
@@ -725,12 +680,7 @@ public class ManageRow3 extends Application{
                 @Override
                 public void handle(CellEditEvent<Rower, String> t) {
                     ((Rower) t.getTableView().getItems().get(t.getTablePosition().getRow())).setName(t.getNewValue());
-                    rosterTable = createCoxRowerRosterView();
-                if(currentBoat != null){
-                    lineupsTable = lineupsTable(currentBoat);
-                    System.out.println("in loop");
-                }
-
+                    setLineupsTab();
                 }
             }
         );
@@ -904,14 +854,11 @@ public class ManageRow3 extends Application{
        //b.drawBoat(gc, -1);
        //b.drawBoat(gc, -1);
        lineupsTable = lineupsTable(b);
-       System.out.println("in select boat");
        currentBoat = b;
-        System.out.println(currentBoat);
-       rosterTable = createCoxRowerRosterView();
-
-       GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
-       gc.clearRect(0, 0, lineupsCanvas.getWidth(), lineupsCanvas.getHeight());
-       b.drawBoat(gc);
+       setLineupsTab();
+    //    GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
+    //    gc.clearRect(0, 0, lineupsCanvas.getWidth(), lineupsCanvas.getHeight());
+    //    b.drawBoat(gc);
     }
 
     //********************** CSV Tools **********************/
