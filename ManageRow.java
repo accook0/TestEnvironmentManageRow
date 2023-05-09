@@ -756,7 +756,7 @@ public class ManageRow extends Application{
 
                 if (toBoatAdded < boatAdded) {
                     GraphicsContext gc = c.getGraphicsContext2D();
-                    boats[toBoatAdded++].drawBoat(gc, .5);
+                    boats[toBoatAdded++].drawBoat(gc, .35);
                     System.out.println("called " + boatAdded);
                 }
                 

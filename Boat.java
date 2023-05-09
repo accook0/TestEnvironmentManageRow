@@ -265,6 +265,7 @@ public class Boat
     public void drawBoat(GraphicsContext gc, double scale){        
         //GraphicsContext gc = c.getGraphicsContext2D();
         //gc.clearRect(0, 0, 400, 400);
+        System.out.println(this.filledSeats);
         gc.save();
         gc.setStroke(Color.BLACK);
         int coordx = 0;
@@ -324,6 +325,9 @@ public class Boat
         }
         else if(this.getSize() == 5){
             gc.strokeOval(10, 10, 200, 30); //boat
+            if(this.filledSeats.contains(-1)){
+                gc.strokeOval(172.5, 15.5, 19, 19);
+            }
             gc.fillOval(175, 17.5, 15, 15);
         }
 
@@ -333,7 +337,7 @@ public class Boat
             //gc.strokeOval(55, 57.5, 15, 15);
             gc.setStroke(Color.BLACK);
             gc.setFill(Color.BLACK);
-            if(this.filledSeats.contains(8)){
+            if(this.filledSeats.contains(-1)){
                 gc.strokeOval(coordx, coordy +3, 15, 15);
                 gc.fillOval(coordx + 2.5, coordy +5, 10, 10);
             }
@@ -364,7 +368,7 @@ public class Boat
                 }
                 if(this.filledSeats.contains(i)){
                     gc.fillOval(coordx, coordy, 20, 20);
-                    System.out.println("filled seat");
+                    //System.out.println("filled seat");
 
                     }
                 else{
