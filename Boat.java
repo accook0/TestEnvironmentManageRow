@@ -85,7 +85,7 @@ public class Boat
             return false;
         }
         lineup[seatNum] = null;
-        filledSeats.remove(seatNum-1);
+        filledSeats.remove(seatNum);
         return true;
     }
 

@@ -508,7 +508,7 @@ public class ManageRow extends Application{
                 else if(i == b.getLineup().length-1 && r.getSide().equals("Coxswain")){
                     rowerLabel2.getItems().add(r.getName());
                 }
-                else if((r.getSide().equals("Port") || r.getSide().equals("Both") ) && (i % 2 == b.getRig() + 1) && (i != b.getLineup().length-1 || b.getLineup().length < 4)){
+                else if((r.getSide().equals("Port") || r.getSide().equals("Both") ) && (i % 2 == (b.getRig() + 1) % 2) && (i != b.getLineup().length-1 || b.getLineup().length < 4)){
                     rowerLabel2.getItems().add(r.getName());
                 }
                 else if((r.getSide().equals("Starboard") || r.getSide().equals("Both") ) && (i % 2 == b.getRig()) && (i != b.getLineup().length-1 || b.getLineup().length < 4)){
