@@ -249,7 +249,7 @@ public class ManageRow extends Application{
         wrapperPane.setPrefHeight(400);
 
         //bind the canvas
-        wrapperPane.getChildren().addAll(lineupsCanvas);
+        wrapperPane.getChildren().add(lineupsCanvas);
         lineupsCanvas.widthProperty().bind(wrapperPane.widthProperty());
         lineupsCanvas.heightProperty().bind(wrapperPane.heightProperty());
 
@@ -271,7 +271,13 @@ public class ManageRow extends Application{
         if(currentBoat != null){
             test = lineupsTable(currentBoat);
             lineupsPane.setBottom(test);
-            
+
+            String boatName = String.valueOf(boatsDropDown.getValue());
+            GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
+            gc.clearRect(0, 0, lineupsCanvas.getWidth(), lineupsCanvas.getHeight());
+            Boat b =  Boat.getBoat(boatName, fleet);
+            b.drawBoat(gc, -1);
+
         }
         VBox rosterTableHolder = new VBox(10);
         //rosterTableHolder.setPrefWidth(200);
