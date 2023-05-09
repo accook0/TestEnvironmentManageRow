@@ -74,7 +74,7 @@ public class Boat
             return false;
         }
         lineup[seatNum-1] = r;
-        filledSeats.add(seatNum-1);
+        filledSeats.add(this.getSize() - seatNum -1);
         return true;
     }
 
@@ -85,7 +85,7 @@ public class Boat
             return false;
         }
         lineup[seatNum] = null;
-        filledSeats.remove(seatNum);
+        filledSeats.remove(this.getSize() - seatNum);
         return true;
     }
 
@@ -262,7 +262,7 @@ public class Boat
     //      }
     // //end
 
-    public void drawBoat(GraphicsContext gc){        
+    public void drawBoat(GraphicsContext gc, double scale){        
         //GraphicsContext gc = c.getGraphicsContext2D();
         //gc.clearRect(0, 0, 400, 400);
         gc.save();
@@ -276,22 +276,25 @@ public class Boat
 
         if (this.getSize() == 5){
             translatey = 150;
-            gc.scale(.5,.5);//elodie
+            gc.scale(scale,scale);//elodie
 
         }
         else if (this.getSize() == 9){
             translatey = 250;
-            gc.scale(.35,.35);//elodie
+            gc.scale(scale,scale);//elodie
+
 
         }
         else if (this.getSize() == 2){
             translatey = 150;
-            gc.scale(.5,.5);//elodie
+            gc.scale(scale,scale);//elodie
+
 
         }
         else if (this.getSize() == 1){
             translatey = 150;
-            gc.scale(.5,.5);//elodie
+            gc.scale(scale,scale);//elodie
+
 
         }
         gc.translate(0, translatey);
@@ -302,27 +305,41 @@ public class Boat
        // gc.setTransform(coordy, coordy, coordy, coordy, coordx, coordy);
         if(this.getSize() == 1){
             gc.strokeOval(10, 10, 150, 30); //boat
-            gc.strokeOval(75, 15.5, 20, 20);
+            if(this.filledSeats.contains(0))
+                gc.fillOval(75, 15.5, 20, 20);
+            else{
+                gc.strokeOval(75, 15.5, 20, 20);
+            }
         }
 
         else if (this.getSize() == 2){ //THIS A LITTLE BUGGY BUT ITS LIKE FINE
             gc.strokeOval(10, 10, 150, 30); //boat
+            if(this.filledSeats.contains(0))
+                gc.fillOval(55, 15.5, 20, 20);
+            if(this.filledSeats.contains(1))
+                gc.fillOval(90, 15.5, 20, 20);
+                
             gc.strokeOval(55, 15.5, 20, 20);
             gc.strokeOval(90, 15.5, 20, 20);
-
         }
         else if(this.getSize() == 5){
-
             gc.strokeOval(10, 10, 200, 30); //boat
             gc.fillOval(175, 17.5, 15, 15);
         }
+
         else if (this.getSize() == 9){
             // coordy = 55;
             gc.strokeOval(10, coordy-5, 350, 30); //boat
             //gc.strokeOval(55, 57.5, 15, 15);
             gc.setStroke(Color.BLACK);
             gc.setFill(Color.BLACK);
-            gc.fillOval(coordx + 2.5, coordy +5, 10, 10);
+            if(this.filledSeats.contains(8)){
+                gc.strokeOval(coordx, coordy +3, 15, 15);
+                gc.fillOval(coordx + 2.5, coordy +5, 10, 10);
+            }
+            else{
+                gc.fillOval(coordx + 2.5, coordy +5, 10, 10);
+            }
             coordx += 30;
             translatey = 250;
             //gc.fillOval(57.5, 60, 10, 10); //cox
@@ -331,7 +348,7 @@ public class Boat
 
         if(this.getSize() ==5 || this.getSize() ==9){
             for(int i = 0; i < this.getSize() - 1; i ++){
-                System.out.println("drawing seat");
+                //System.out.println("drawing seat");
 
                 gc.setStroke(Color.BLACK);
                 gc.setFill(Color.BLACK);

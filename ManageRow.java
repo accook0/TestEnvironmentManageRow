@@ -281,7 +281,7 @@ public class ManageRow extends Application{
             GraphicsContext gc = lineupsCanvas.getGraphicsContext2D();
             gc.clearRect(0, 0, lineupsCanvas.getWidth(), lineupsCanvas.getHeight());
             Boat b =  Boat.getBoat(boatName, fleet);
-            b.drawBoat(gc);
+            b.drawBoat(gc, 1);
         });
         rosterTableHolder.getChildren().addAll(pleaseWork, rosterTable, saveAndQuit);
         
@@ -756,7 +756,7 @@ public class ManageRow extends Application{
 
                 if (toBoatAdded < boatAdded) {
                     GraphicsContext gc = c.getGraphicsContext2D();
-                    boats[toBoatAdded++].drawBoat(gc);
+                    boats[toBoatAdded++].drawBoat(gc, .5);
                     System.out.println("called " + boatAdded);
                 }
                 
@@ -842,7 +842,7 @@ public class ManageRow extends Application{
         GraphicsContext gc = boatImg.getGraphicsContext2D();
         gc.clearRect(0, 0, boatImg.getWidth(), boatImg.getHeight());
         
-        b.drawBoat(gc);
+        b.drawBoat(gc, 1);
         //saveImg(c, boatName);
 
         //popThumbnails(boatName);
