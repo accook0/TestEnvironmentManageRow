@@ -20,7 +20,7 @@ public class Boat
     private static final Color STARBOARD = Color.GREEN;
     private static final int PORT_RIGGED = 0;
     private static final int STARBOARD_RIGGED = 1;
-    private ArrayList<Integer> filledSeats = new ArrayList<Integer>();
+    private ArrayList<String> filledSeats = new ArrayList<String>();
 
 
 
@@ -75,7 +75,7 @@ public class Boat
             return false;
         }
         lineup[seatNum-1] = r;
-        filledSeats.add(this.getSize() - seatNum -1);
+        filledSeats.add(String.valueOf(this.getSize() - seatNum -1));
         Collections.sort(filledSeats, Collections.reverseOrder());
 
 
@@ -89,14 +89,11 @@ public class Boat
             return false;
         }
         lineup[seatNum] = null;
-        int index = filledSeats.indexOf(this.getSize() - seatNum -1);
+        String test = String.valueOf(this.getSize() - seatNum -2);
+        System.out.println(test);
+        int index = filledSeats.indexOf(test);
         System.out.println(index);
-        if(index == -1){
-            filledSeats.remove(0);
-        }
-        else{
-            filledSeats.remove(index);
-        }
+        filledSeats.remove(index);
 
         return true;
     }
@@ -191,7 +188,7 @@ public class Boat
        // gc.setTransform(coordy, coordy, coordy, coordy, coordx, coordy);
         if(this.getSize() == 1){
             gc.strokeOval(10, 10, 150, 30); //boat
-            if(this.filledSeats.contains(0))
+            if(this.filledSeats.contains(String.valueOf(0)))
                 gc.fillOval(75, 15.5, 20, 20);
             else{
                 gc.strokeOval(75, 15.5, 20, 20);
@@ -200,9 +197,9 @@ public class Boat
 
         else if (this.getSize() == 2){ //THIS A LITTLE BUGGY BUT ITS LIKE FINE
             gc.strokeOval(10, 10, 150, 30); //boat
-            if(this.filledSeats.contains(0))
+            if(this.filledSeats.contains(String.valueOf(0)))
                 gc.fillOval(55, 15.5, 20, 20);
-            if(this.filledSeats.contains(-1))
+            if(this.filledSeats.contains(String.valueOf(-1)))
                 gc.fillOval(90, 15.5, 20, 20);
                 
             gc.strokeOval(55, 15.5, 20, 20);
@@ -222,7 +219,7 @@ public class Boat
             //gc.strokeOval(55, 57.5, 15, 15);
             gc.setStroke(Color.BLACK);
             gc.setFill(Color.BLACK);
-            if(this.filledSeats.contains(-1)){
+            if(this.filledSeats.contains(String.valueOf(-1))){
                 gc.strokeOval(coordx, coordy +3, 15, 15);
                 gc.fillOval(coordx + 2.5, coordy +5, 10, 10);
             }
@@ -252,7 +249,7 @@ public class Boat
 
                 }
 
-                if(this.filledSeats.contains(i))
+                if(this.filledSeats.contains(String.valueOf(i)))
                 {
                     gc.fillOval(coordx, coordy, 20, 20);
                     //System.out.println("filled seat");

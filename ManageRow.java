@@ -129,6 +129,7 @@ public class ManageRow extends Application{
         teamRoster = csvReaderRower("roster.csv");
         fleet = readBoatCsv("boats.csv"); //returns the csv
         buildBoatSelection();
+        buildBoatsArray();
         //create tabs
         TabPane tabPane = new TabPane();
         boatsTab.setText("Boats");
@@ -448,6 +449,16 @@ public class ManageRow extends Application{
         wn.hide();
     }
 
+    public void buildBoatsArray(){
+        int i = 0;
+        for(Boat b: fleet){
+            if(i< boats.length){
+                boats[i] = b;
+            }
+            i++;
+        }
+    }
+
     public void buildBoatSelection(){
         for(Boat b : fleet){ //read the csv here, create combo box
             boatsDropDown.getItems().add(b.getName());
@@ -746,6 +757,7 @@ public class ManageRow extends Application{
         }
     }
 
+
     public void popThumbnails() { //throws FileNotFoundException{
 
         int toBoatAdded = 0;
@@ -753,6 +765,7 @@ public class ManageRow extends Application{
      //   while (toBoatAdded == boatAdded) {
 
     //    }
+
 
         for(int i = 0; i < 2; i ++){
             for(int j = 0; j < 8; j ++){
@@ -904,6 +917,7 @@ public class ManageRow extends Application{
                     csvWriter.append(String.valueOf(line.getClassYear()));
                     csvWriter.append("\n");
                 }
+
             }
             csvWriter.flush();
         } // changing csv writers to reflect the cox position needs
@@ -931,6 +945,7 @@ public class ManageRow extends Application{
                 //System.out.println(values[0]);
                 if(values[1].equals("Coxswain")){
                     data = new Rower(values[0], Integer.valueOf(values[3]));
+                    System.out.println("yo");
 
                 }
                 else{
