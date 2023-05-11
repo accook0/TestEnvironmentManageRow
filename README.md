@@ -54,36 +54,40 @@ Overall we hope to be able to save the information entered from session to sessi
 ### Boats Tab:
 Here are some of the ideas that we have had:
 
-![](boats_mockup.jpg)
-![](prelim_mockup.jpg)
+<img src="boats_mockup.jpg" height="300">
+<img src="prelim_mockup.jpg" height="300">
+
 We decided to change from the horizontal grid option to the single display of the type selected for a few reasons. In order to implement this, we will need to draw these boats. The idea currently is that from the comoBox, we then pass that as a parameter to a drawing function that can then return the boat drawn. In this tab, we don’t need anything to be colored in, but we do need it to display the correct number of seats in the boats. The one dynamic element is if the coach changes the “rig” drop down, we would like the seats for rowers to flip positions. In order to accomplish this, we will utilize a transformation, or a flag value. 
 
 ### Lineups Tab:
-![](lineups_mockup.jpg)
+<img src="lineups_mockup.jpg" height="300">
+
 The idea below for lineups mimics the above functionality. Ideally, the boat names will be stored in a data structure (maybe a hash map) that holds the name of the boat as a key, the rig and the type of boat as parameters. We will use the same redraw function to then put the boat on this page. Ideally, the boat image will be binded to the lineup table view pictured below the boat image. So that, when a field is populated, or removed, the boat will reflect these changes. 
 
 
 ### Roster Tab:
-![](roster_mockup.jpg)
+<img src="roster_mockup.jpg" height="300">
+
 This tab is the most straightforward of them all. This will allow for the coach to edit the rower once they are clicked. We thought about making the table view editable, but then decided that the other box was more visually appealing than a tableview with so many functionalities crammed into it. 
 
 	
 ### Learn More Tab:
-![](learnMore_mockup.jpg)
+<img src="learnMore_mockup.jpg" height="300">
+
 This tab is where we get the most freedom to play with design and communicate information to the users. This is the most uncertain mock-up that we have currently. I think that this is also where we will be learning the most as well. 
 
 ### Bibliography:
 We struggled to find sources that were specific to our goals, however, we were able to find some graphics that inspired us.
+<img src="boat_inspo.jpg" height="300">
 
-![](boat_inspo.jpeg)  
 
 
 -----------------------------------------------------------------
 
 ## Objectives:
 * Draw boat
-    * final boat design: ![](boatFinal.jpg)
-* Select Seat/ bind boat object to table view with lineup
+    * final boat design: <img src="boatFinal.jpg" height="200">
+* Select Seat/ bind boat object to table view with lineup 
 * Generalize/transformations 
 * Use a re-draw function to complete/experiment with listeners and binding
 * Animated boat in ‘Learn More’ tab
@@ -92,6 +96,28 @@ We struggled to find sources that were specific to our goals, however, we were a
 * Use GridPane to create ‘cards’ representing all the lineups, then call up information
 
 
+## Division of Labor
+* Lucca:
+    * Implemented most of the backend
+    * completed the setRosterTab and setLineupsTab methods
+    * fixed the roster logic to support dropdowns
+
+* Anna:
+    * implemented the drawBoat function
+    * made the csv readers/writers
+    * wrote css files
+
+* Both: 
+    * troubleshot the bugs (specifically to find a way to draw the boats)
+    * refactored the code
+
+**full disclosure it all blends together, it was pretty even overall.  
+
+  
+## Reflection and Code Review:
+  We have accomplished most, if not all, of the objectives and I think that we have also learned a lot along the way. This project was challengeing because we needed to invent a way to do what we wanted, as well as not refactor everything.
+
+  The code, while not the prettiest, is pretty straight forward. We tried to keep the functions SOFA, not have too many magic numbers, and comment the code where applicable. If we were to do it again or have more time, doing a more in depth refactor would have been useful. 
 
 
 ## How to run

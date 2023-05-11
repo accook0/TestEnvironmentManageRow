@@ -90,9 +90,9 @@ public class Boat
         }
         lineup[seatNum] = null;
         String test = String.valueOf(this.getSize() - seatNum -2);
-        System.out.println(test);
+        //System.out.println(test);
         int index = filledSeats.indexOf(test);
-        System.out.println(index);
+        //System.out.println(index);
         filledSeats.remove(index);
 
         return true;
@@ -147,7 +147,7 @@ public class Boat
     public void drawBoat(GraphicsContext gc, double scale){        
         //GraphicsContext gc = c.getGraphicsContext2D();
         //gc.clearRect(0, 0, 400, 400);
-        System.out.println(this.filledSeats);
+        //System.out.println(this.filledSeats);
         gc.save();
         gc.setStroke(Color.BLACK);
         int coordx = 0;
@@ -188,7 +188,7 @@ public class Boat
        // gc.setTransform(coordy, coordy, coordy, coordy, coordx, coordy);
         if(this.getSize() == 1){
             gc.strokeOval(10, 10, 150, 30); //boat
-            if(this.filledSeats.contains(String.valueOf(0)))
+            if(this.filledSeats.contains(String.valueOf(-1)))
                 gc.fillOval(75, 15.5, 20, 20);
             else{
                 gc.strokeOval(75, 15.5, 20, 20);
